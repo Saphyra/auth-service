@@ -39,6 +39,12 @@
 
         <dependency>
             <groupId>com.github.saphyra</groupId>
+            <artifactId>cache</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.saphyra</groupId>
             <artifactId>exception-handling</artifactId>
             <version>1.0.0</version>
         </dependency>

@@ -10,8 +10,9 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 //TODO unit test
-public class AuthServiceImpl implements AuthService {
+public class AuthServiceFacade implements AuthService {
     private final LoginService loginService;
+    private final LogoutService logoutService;
 
     @Override
     public boolean canAccess(String requestUri, String userId, String accessTokenId) {
@@ -25,6 +26,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(String userId, String accessTokenId) {
-
+        logoutService.logout(userId, accessTokenId);
     }
 }

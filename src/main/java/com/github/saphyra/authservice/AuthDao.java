@@ -11,4 +11,8 @@ public interface AuthDao {
     void saveAccessToken(AccessToken accessToken);
 
     void deleteAccessTokenByUserId(String userId);
+
+    AccessToken findAccessTokenByTokenId(String key);
+
+    void deleteAccessToken(AccessToken accessToken);
 }
