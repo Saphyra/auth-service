@@ -41,6 +41,8 @@ public class AuthController {
         log.info("Logout request arrived.");
         Optional<String> userId = CookieUtil.getCookie(request, propertySource.getUserIdCookie());
         Optional<String> accessTokenId = CookieUtil.getCookie(request, propertySource.getAccessTokenCookie());
-        authService.logout(userId, accessTokenId);
+        if(userId.isPresent() && accessTokenId.isPresent()){
+            authService.logout(userId.get(), accessTokenId.get());
+        }
     }
 }
