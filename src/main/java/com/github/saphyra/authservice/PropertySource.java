@@ -20,4 +20,6 @@ public interface PropertySource {
     List<String> getAllowedUris();
 
     Map<String, Set<Role>> getRoleSettings();
+
+    boolean isMultipleLoginAllowed();
 }
