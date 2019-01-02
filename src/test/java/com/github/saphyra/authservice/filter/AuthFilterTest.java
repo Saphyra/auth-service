@@ -92,11 +92,11 @@ public class AuthFilterTest {
         //GIVEN
         Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
         when(request.getCookies()).thenReturn(cookies);
-        when(authService.isAuthenticated(USER_ID, ACCESS_TOKEN_ID)).thenReturn(true);
+        when(authService.canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID)).thenReturn(true);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
-        verify(authService).isAuthenticated(USER_ID, ACCESS_TOKEN_ID);
+        verify(authService).canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID);
         verify(filterChain).doFilter(request, response);
     }
 
@@ -105,11 +105,11 @@ public class AuthFilterTest {
         //GIVEN
         Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
         when(request.getCookies()).thenReturn(cookies);
-        when(authService.isAuthenticated(USER_ID, ACCESS_TOKEN_ID)).thenReturn(false);
+        when(authService.canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID)).thenReturn(false);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
-        verify(authService).isAuthenticated(USER_ID, ACCESS_TOKEN_ID);
+        verify(authService).canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID);
         verifyNoMoreInteractions(filterChain);
     }
 }

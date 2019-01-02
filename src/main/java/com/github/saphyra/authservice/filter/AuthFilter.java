@@ -68,7 +68,7 @@ public class AuthFilter extends OncePerRequestFilter {
             return false;
         }
 
-        return authService.isAuthenticated(userIdValue.get(), accessTokenId.get());
+        return authService.canAccess(request.getRequestURI(), userIdValue.get(), accessTokenId.get());
     }
 
     @PostConstruct

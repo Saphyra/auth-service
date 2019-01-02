@@ -1,6 +1,10 @@
 package com.github.saphyra.authservice;
 
+import com.github.saphyra.authservice.domain.Role;
+
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface PropertySource {
     String getRequestTypeHeader();
@@ -14,4 +18,6 @@ public interface PropertySource {
     String getUserIdCookie();
 
     List<String> getAllowedUris();
+
+    Map<String, Set<Role>> getRoleSettings();
 }
