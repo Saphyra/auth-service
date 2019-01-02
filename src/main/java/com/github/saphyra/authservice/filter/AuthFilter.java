@@ -21,15 +21,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.github.saphyra.authservice.controller.AuthController.LOGIN_MAPPING;
 
-@SuppressWarnings("NullableProblems")
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class AuthFilter extends OncePerRequestFilter {
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private static final List<String> DEFAULT_ALLOWED_URIS = Arrays.asList(
-        "/login"
+        "/" + LOGIN_MAPPING
     );
 
     private final AuthService authService;
