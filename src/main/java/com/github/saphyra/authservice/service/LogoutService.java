@@ -13,7 +13,6 @@ public class LogoutService {
     private final AccessTokenCache accessTokenCache;
     private final AuthDao authDao;
 
-    //TODO unit test
     public void logout(String userId, String accessTokenId) {
         accessTokenCache.get(accessTokenId).ifPresent(accessToken -> {
             if (accessToken.getUserId().equals(userId)) {

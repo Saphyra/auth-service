@@ -15,4 +15,6 @@ public class LoginRequest {
 
     @NotNull
     private String password;
+
+    private Boolean rememberMe;
 }

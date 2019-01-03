@@ -21,7 +21,6 @@ public class AccessTokenCleanupService {
     private final PropertySource propertySource;
 
     @Scheduled(cron = "0 * * * * *")
-    //todo unit test
     public void deleteExpiredAccessTokens(){
         OffsetDateTime expiration = offsetDateTimeProvider.getCurrentDate().minusMinutes(propertySource.getTokenExpirationMinutes());
         authDao.deleteExpiredAccessTokens(expiration);

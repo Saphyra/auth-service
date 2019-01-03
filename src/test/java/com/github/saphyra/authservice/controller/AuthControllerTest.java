@@ -46,21 +46,21 @@ public class AuthControllerTest {
 
     @Before
     public void init() {
-        when(propertySource.getAccessTokenCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
+        when(propertySource.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
         when(propertySource.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
     }
 
     @Test
     public void testLogin() {
         //GIVEN
-        LoginRequest loginRequest = new LoginRequest(USERNAME, PASSWORD);
+        LoginRequest loginRequest = new LoginRequest(USERNAME, PASSWORD, false);
 
-        AccessToken accessToken = new AccessToken(ACCESS_TOKEN_ID, USER_ID, OffsetDateTime.now());
-        when(authService.login(USERNAME, PASSWORD)).thenReturn(accessToken);
+        AccessToken accessToken = new AccessToken(ACCESS_TOKEN_ID, USER_ID, false, OffsetDateTime.now());
+        when(authService.login(USERNAME, PASSWORD, loginRequest.getRememberMe())).thenReturn(accessToken);
         //WHEN
         underTest.login(loginRequest, response);
         //THEN
-        verify(authService).login(USERNAME, PASSWORD);
+        verify(authService).login(USERNAME, PASSWORD, loginRequest.getRememberMe());
         verify(response, times(2)).addCookie(any(Cookie.class));
     }
 

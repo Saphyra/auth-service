@@ -30,9 +30,10 @@ public class AuthController {
     @PostMapping(LOGIN_MAPPING)
     public void login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
         log.info("Login request arrived.");
-        AccessToken accessToken = authService.login(loginRequest.getUserName(), loginRequest.getPassword());
-        CookieUtil.setCookie(response, propertySource.getUserIdCookie(), accessToken.getUserId());
-        CookieUtil.setCookie(response, propertySource.getAccessTokenCookie(), accessToken.getAccessTokenId());
+        AccessToken accessToken = authService.login(loginRequest.getUserName(), loginRequest.getPassword(), loginRequest.getRememberMe());
+        int expiration = accessToken.isPersistent() ? Integer.MAX_VALUE : -1;
+        CookieUtil.setCookie(response, propertySource.getUserIdCookie(), accessToken.getUserId(), expiration);
+        CookieUtil.setCookie(response, propertySource.getAccessTokenIdCookie(), accessToken.getAccessTokenId(), expiration);
         log.info("Access token successfully created, and sent for the client.");
     }
 
@@ -40,7 +41,7 @@ public class AuthController {
     public void logout(HttpServletRequest request){
         log.info("Logout request arrived.");
         Optional<String> userId = CookieUtil.getCookie(request, propertySource.getUserIdCookie());
-        Optional<String> accessTokenId = CookieUtil.getCookie(request, propertySource.getAccessTokenCookie());
+        Optional<String> accessTokenId = CookieUtil.getCookie(request, propertySource.getAccessTokenIdCookie());
         if(userId.isPresent() && accessTokenId.isPresent()){
             authService.logout(userId.get(), accessTokenId.get());
         }

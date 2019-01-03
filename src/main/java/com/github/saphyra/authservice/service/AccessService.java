@@ -2,6 +2,7 @@ package com.github.saphyra.authservice.service;
 
 import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
+import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
 import com.github.saphyra.authservice.domain.Role;
 import com.github.saphyra.authservice.domain.User;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -25,45 +27,64 @@ public class AccessService {
     private final OffsetDateTimeProvider offsetDateTimeProvider;
     private final PropertySource propertySource;
 
-    //todo unit test
-    public boolean canAccess(String requestUri, String userId, String accessTokenId) {
+    public AccessStatus canAccess(String requestUri, String userId, String accessTokenId) {
         Optional<AccessToken> accessTokenOptional = accessTokenCache.get(accessTokenId);
         if (!accessTokenOptional.isPresent()) {
-            return false;
+            log.debug("Access token not found with accessTokenId {}", accessTokenId);
+            return AccessStatus.UNAUTHORIZED;
         }
 
         AccessToken accessToken = accessTokenOptional.get();
         if (!userId.equals(accessToken.getUserId())) {
-            return false;
+            log.warn("{} has no access to AccessToken {}", userId, accessTokenId);
+            return AccessStatus.UNAUTHORIZED;
         }
 
-        if (isAccessTokenExpired(accessToken.getLastAccess())) {
-            return false;
+        if (isAccessTokenExpired(accessToken)) {
+            log.debug("AccessToken {} is expired.", accessTokenId);
+            return AccessStatus.UNAUTHORIZED;
         }
 
         Optional<User> userOptional = authDao.findUserById(userId);
         if (!userOptional.isPresent()) {
-            return false;
+            log.info("User not found with userId {}", userId);
+            return AccessStatus.UNAUTHORIZED;
         }
 
+        log.debug("AccessToken is valid. Updating lastAccess...");
         accessToken.setLastAccess(offsetDateTimeProvider.getCurrentDate());
         authDao.saveAccessToken(accessToken);
 
         return hasUserAccessForUri(requestUri, userOptional.get());
     }
 
-    private boolean isAccessTokenExpired(OffsetDateTime lastAccess) {
-        OffsetDateTime expiration = lastAccess.plusMinutes(propertySource.getTokenExpirationMinutes());
+    private boolean isAccessTokenExpired(AccessToken accessToken) {
+        if (accessToken.isPersistent()) {
+            return false;
+        }
+        OffsetDateTime expiration = accessToken.getLastAccess().plusMinutes(propertySource.getTokenExpirationMinutes());
         return offsetDateTimeProvider.getCurrentDate().isAfter(expiration);
     }
 
-    private boolean hasUserAccessForUri(String requestUri, User user) {
-        Set<Role> roles = user.getRoles();
-        return propertySource.getRoleSettings().entrySet().stream()
+    private AccessStatus hasUserAccessForUri(String requestUri, User user) {
+        Set<Role> userRoles = user.getRoles();
+        log.debug("User roles: {}", userRoles);
+
+        Optional<Map.Entry<String, Set<Role>>> matchingUriOptional = propertySource.getRoleSettings().entrySet().stream()
             .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
-            .findFirst()
-            .map(entry -> entry.getValue().stream()
-                .anyMatch(roles::contains))
-            .orElse(true);
+            .findFirst();
+
+        if (!matchingUriOptional.isPresent()) {
+            log.debug("Request URI {} is not protected with Roles. Access Granted.", requestUri);
+            return AccessStatus.GRANTED;
+        }
+
+        Set<Role> necessaryRoles = matchingUriOptional.get().getValue();
+        log.debug("Necessary role(s) to access URI {} is {}", requestUri, necessaryRoles);
+        boolean hasUserRole = necessaryRoles.stream()
+            .anyMatch(userRoles::contains);
+
+        log.debug("User has necessary role: {}", hasUserRole);
+        return hasUserRole ? AccessStatus.GRANTED : AccessStatus.FORBIDDEN;
     }
 }

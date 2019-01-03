@@ -13,10 +13,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
-//TODO unit test
 public class LoginService {
     private final AuthDao authDao;
     private final IdGenerator idGenerator;
@@ -24,7 +25,7 @@ public class LoginService {
     private final PasswordService passwordService;
     private final PropertySource propertySource;
 
-    public AccessToken login(String userName, String password) {
+    public AccessToken login(String userName, String password, Boolean rememberMe) {
         User user = authDao.findUserByUserName(userName)
             .orElseThrow(() -> new UnauthorizedException("User not found with userName " + userName));
         Credentials credentials = user.getCredentials();
@@ -37,7 +38,13 @@ public class LoginService {
             authDao.deleteAccessTokenByUserId(user.getUserId());
         }
 
-        AccessToken accessToken = new AccessToken(idGenerator.generateRandomId(), user.getUserId(), offsetDateTimeProvider.getCurrentDate());
+        AccessToken accessToken = AccessToken.builder()
+            .accessTokenId(idGenerator.generateRandomId())
+            .userId(user.getUserId())
+            .lastAccess(offsetDateTimeProvider.getCurrentDate())
+            .isPersistent(Optional.ofNullable(rememberMe).orElse(false))
+            .build();
+
         authDao.saveAccessToken(accessToken);
         return accessToken;
     }

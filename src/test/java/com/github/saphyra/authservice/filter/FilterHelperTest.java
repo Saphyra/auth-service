@@ -1,6 +1,7 @@
 package com.github.saphyra.authservice.filter;
 
 import com.github.saphyra.authservice.PropertySource;
+import com.github.saphyra.authservice.domain.AccessStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -39,25 +39,39 @@ public class FilterHelperTest {
     public void init(){
         when(propertySource.getRequestTypeHeader()).thenReturn(REQUEST_TYPE_HEADER);
         when(propertySource.getRestTypeValue()).thenReturn(REST_TYPE_REQUEST);
+        when(propertySource.getUnauthorizedRedirection()).thenReturn(REDIRECTION_PATH);
+        when(propertySource.getForbiddenRedirection()).thenReturn(REDIRECTION_PATH);
     }
 
     @Test
-    public void testHandleUnauthorizedShouldSendErrorWhenRest() throws IOException {
+    public void testHandleUnauthorizedShouldSendErrorWhenUnauthorizedRest() throws IOException {
         //GIVEN
         when(request.getHeader(REQUEST_TYPE_HEADER)).thenReturn(REST_TYPE_REQUEST);
         //WHEN
-        underTest.handleUnauthorized(request, response, REDIRECTION_PATH);
+        underTest.handleUnauthorized(request, response, AccessStatus.UNAUTHORIZED);
         //THEN
-        verify(response).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+        verify(response).sendError(eq(AccessStatus.UNAUTHORIZED.getResponseStatus()), anyString());
     }
 
     @Test
-    public void testHandleUnauthorizedShouldRedirectWhenNotRest() throws IOException {
+    public void testHandleUnauthorizedShouldRedirectWhenUnauthorizedNotRest() throws IOException {
         //GIVEN
         when(request.getHeader(REQUEST_TYPE_HEADER)).thenReturn(null);
         //WHEN
-        underTest.handleUnauthorized(request, response, REDIRECTION_PATH);
+        underTest.handleUnauthorized(request, response, AccessStatus.UNAUTHORIZED);
         //THEN
+        verify(propertySource).getUnauthorizedRedirection();
+        verify(response).sendRedirect(REDIRECTION_PATH);
+    }
+
+    @Test
+    public void testHandleUnauthorizedShouldRedirectWhenForbiddenNotRest() throws IOException {
+        //GIVEN
+        when(request.getHeader(REQUEST_TYPE_HEADER)).thenReturn(null);
+        //WHEN
+        underTest.handleUnauthorized(request, response, AccessStatus.FORBIDDEN);
+        //THEN
+        verify(propertySource).getForbiddenRedirection();
         verify(response).sendRedirect(REDIRECTION_PATH);
     }
 }

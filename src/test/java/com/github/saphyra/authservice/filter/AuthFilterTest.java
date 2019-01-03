@@ -2,12 +2,14 @@ package com.github.saphyra.authservice.filter;
 
 import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.PropertySource;
+import com.github.saphyra.authservice.domain.AccessStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.util.AntPathMatcher;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -25,7 +27,6 @@ import static org.mockito.Mockito.when;
 public class AuthFilterTest {
     private static final String ALLOWED_URI = "allowed";
     private static final String PROTECTED_URI = "protected";
-    private static final String REDIRECTION = "redirection";
     private static final String COOKIE_USER_ID = "cookie_user_id";
     private static final String USER_ID = "user_id";
     private static final String COOKIE_ACCESS_TOKEN_ID = "cookie_access_token_id";
@@ -49,17 +50,21 @@ public class AuthFilterTest {
     @Mock
     private PropertySource propertySource;
 
+    @Mock
+    private AntPathMatcher antPathMatcher;
+
     @InjectMocks
     private AuthFilter underTest;
 
     @Before
     public void init() {
         when(propertySource.getAllowedUris()).thenReturn(Arrays.asList(ALLOWED_URI));
-        when(propertySource.getUnauthorizedRedirection()).thenReturn(REDIRECTION);
         when(propertySource.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
-        when(propertySource.getAccessTokenCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
+        when(propertySource.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
 
         when(request.getRequestURI()).thenReturn(PROTECTED_URI);
+
+        when(antPathMatcher.match(ALLOWED_URI, ALLOWED_URI)).thenReturn(true);
 
         underTest.mapAllowedUris();
     }
@@ -84,7 +89,7 @@ public class AuthFilterTest {
         //THEN
         verifyNoMoreInteractions(authService);
         verifyNoMoreInteractions(filterChain);
-        verify(filterHelper).handleUnauthorized(request, response, REDIRECTION);
+        verify(filterHelper).handleUnauthorized(request, response, AccessStatus.UNAUTHORIZED);
     }
 
     @Test
@@ -92,7 +97,7 @@ public class AuthFilterTest {
         //GIVEN
         Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
         when(request.getCookies()).thenReturn(cookies);
-        when(authService.canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID)).thenReturn(true);
+        when(authService.canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID)).thenReturn(AccessStatus.GRANTED);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
@@ -105,11 +110,12 @@ public class AuthFilterTest {
         //GIVEN
         Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
         when(request.getCookies()).thenReturn(cookies);
-        when(authService.canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID)).thenReturn(false);
+        when(authService.canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID)).thenReturn(AccessStatus.FORBIDDEN);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
         verify(authService).canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID);
+        verify(filterHelper).handleUnauthorized(request, response, AccessStatus.FORBIDDEN);
         verifyNoMoreInteractions(filterChain);
     }
 }

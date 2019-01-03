@@ -2,6 +2,7 @@ package com.github.saphyra.authservice.filter;
 
 import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.PropertySource;
+import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,26 +47,30 @@ public class AuthFilter extends OncePerRequestFilter {
         if (isAllowedPath(path)) {
             log.debug("Allowed path: {}", path);
             filterChain.doFilter(request, response);
-        } else if (isAuthenticated(request)) {
-            log.debug("Needs authentication: {}", path);
-            filterChain.doFilter(request, response);
         } else {
-            filterHelper.handleUnauthorized(request, response, propertySource.getUnauthorizedRedirection());
+            AccessStatus accessStatus = getAccessStatus(request);
+            if (accessStatus == AccessStatus.GRANTED) {
+                log.debug("Access granted.: {}", path);
+                filterChain.doFilter(request, response);
+            } else {
+                filterHelper.handleUnauthorized(request, response, accessStatus);
+            }
         }
     }
 
     private boolean isAllowedPath(String path) {
-        return allowedUris.stream().anyMatch(allowedPath -> pathMatcher.match(allowedPath, path));
+        return allowedUris.stream()
+            .anyMatch(allowedPath -> pathMatcher.match(allowedPath, path));
     }
 
-    private boolean isAuthenticated(HttpServletRequest request) {
+    private AccessStatus getAccessStatus(HttpServletRequest request) {
         log.debug("Authenticating...");
-        Optional<String> accessTokenId = CookieUtil.getCookie(request, propertySource.getAccessTokenCookie());
+        Optional<String> accessTokenId = CookieUtil.getCookie(request, propertySource.getAccessTokenIdCookie());
         Optional<String> userIdValue = CookieUtil.getCookie(request, propertySource.getUserIdCookie());
 
         if (!accessTokenId.isPresent() || !userIdValue.isPresent()) {
             log.warn("Cookies not found.");
-            return false;
+            return AccessStatus.UNAUTHORIZED;
         }
 
         return authService.canAccess(request.getRequestURI(), userIdValue.get(), accessTokenId.get());
