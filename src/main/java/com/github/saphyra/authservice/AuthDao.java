@@ -6,13 +6,15 @@ import com.github.saphyra.authservice.domain.User;
 import java.util.Optional;
 
 public interface AuthDao {
-    Optional<User> findByUserName(String userName);
+    Optional<User> findUserById(String userId);
 
-    void saveAccessToken(AccessToken accessToken);
+    Optional<User> findUserByUserName(String userName);
+
+    void deleteAccessToken(AccessToken accessToken);
 
     void deleteAccessTokenByUserId(String userId);
 
     AccessToken findAccessTokenByTokenId(String key);
 
-    void deleteAccessToken(AccessToken accessToken);
+    void saveAccessToken(AccessToken accessToken);
 }

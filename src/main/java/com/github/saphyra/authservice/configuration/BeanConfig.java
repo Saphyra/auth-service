@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.util.AntPathMatcher;
 
 @Configuration
 @Import(com.github.saphyra.encryption.configuration.BeanConfig.class)
@@ -18,7 +19,12 @@ public class BeanConfig {
     }
 
     @Bean
-    public OffsetDateTimeProvider offsetDateTimeProvider(){
+    public OffsetDateTimeProvider offsetDateTimeProvider() {
         return new OffsetDateTimeProvider();
+    }
+
+    @Bean
+    public AntPathMatcher antPathMatcher() {
+        return new AntPathMatcher();
     }
 }

@@ -25,7 +25,7 @@ public class LoginService {
     private final PropertySource propertySource;
 
     public AccessToken login(String userName, String password) {
-        User user = authDao.findByUserName(userName)
+        User user = authDao.findUserByUserName(userName)
             .orElseThrow(() -> new UnauthorizedException("User not found with userName " + userName));
         Credentials credentials = user.getCredentials();
 

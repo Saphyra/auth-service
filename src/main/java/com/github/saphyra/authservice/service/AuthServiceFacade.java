@@ -11,13 +11,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 //TODO unit test
 public class AuthServiceFacade implements AuthService {
+    private final AccessService accessService;
     private final LoginService loginService;
     private final LogoutService logoutService;
 
     @Override
     public boolean canAccess(String requestUri, String userId, String accessTokenId) {
-        //TODO implement
-        return false;
+        return accessService.canAccess(requestUri, userId, accessTokenId);
     }
 
     @Override

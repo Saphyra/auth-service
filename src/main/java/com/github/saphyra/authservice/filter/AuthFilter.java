@@ -28,11 +28,11 @@ import static com.github.saphyra.authservice.controller.AuthController.LOGIN_MAP
 @RequiredArgsConstructor
 @Component
 public class AuthFilter extends OncePerRequestFilter {
-    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private static final List<String> DEFAULT_ALLOWED_URIS = Arrays.asList(
         "/" + LOGIN_MAPPING
     );
 
+    private final AntPathMatcher pathMatcher;
     private final AuthService authService;
     private final FilterHelper filterHelper;
     private final PropertySource propertySource;

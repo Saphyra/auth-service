@@ -22,4 +22,6 @@ public interface PropertySource {
     Map<String, Set<Role>> getRoleSettings();
 
     boolean isMultipleLoginAllowed();
+
+    long getTokenExpirationMinutes();
 }
