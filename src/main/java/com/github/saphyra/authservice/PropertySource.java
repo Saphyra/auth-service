@@ -88,4 +88,10 @@ public interface PropertySource {
      * @return AccessToken expiration in minutes.
      */
     long getTokenExpirationMinutes();
+
+    /**
+     * This value determinates the filter's place in filter chain. The lower the value, the earlier the filter runs.
+     * @return filter order.
+     */
+    int getFilterOrder();
 }
