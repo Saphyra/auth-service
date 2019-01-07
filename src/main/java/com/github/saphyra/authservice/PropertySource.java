@@ -30,6 +30,7 @@ public interface PropertySource {
 
     /**
      * Even request is forbidden (User does not have the necessary Role), and RequestType is not REST, the request will be redirected to this URI.
+     *
      * @return URI to redirect.
      */
     String getForbiddenRedirection();
@@ -88,4 +89,18 @@ public interface PropertySource {
      * @return AccessToken expiration in minutes.
      */
     long getTokenExpirationMinutes();
+
+    /**
+     * This value determinates the filter's place in filter chain. The lower the value, the earlier the filter runs.
+     *
+     * @return filter order.
+     */
+    int getFilterOrder();
+
+    /**
+     * If the login was successful and sent by HTML form, service will redirect to this URI.
+     *
+     * @return Redirection path
+     */
+    String getSuccessfulLoginRedirection();
 }
