@@ -17,10 +17,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,6 +35,7 @@ public class AuthControllerTest {
     private static final String COOKIE_USER_ID = "cookie_user_id";
     private static final String LOGIN_REDIRECTION = "login_redirection";
     private static final String UNAUTHORIZED_REDIRECTION = "unauthorized_redirection";
+    private static final String LOGOUT_REDIRECTION = "logout_redirection";
 
     @Mock
     private AuthService authService;
@@ -55,6 +58,7 @@ public class AuthControllerTest {
         when(propertySource.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
         when(propertySource.getSuccessfulLoginRedirection()).thenReturn(LOGIN_REDIRECTION);
         when(propertySource.getUnauthorizedRedirection()).thenReturn(UNAUTHORIZED_REDIRECTION);
+        when(propertySource.getLogoutRedirection()).thenReturn(Optional.of(LOGOUT_REDIRECTION));
     }
 
     @Test
@@ -100,13 +104,27 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void testLogout() {
+    public void testLogout() throws IOException {
         //GIVEN
         Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
         when(request.getCookies()).thenReturn(cookies);
         //WHEN
-        underTest.logout(request);
+        underTest.logout(request, response);
         //THEN
         verify(authService).logout(USER_ID, ACCESS_TOKEN_ID);
+        verify(response).sendRedirect(LOGOUT_REDIRECTION);
+    }
+
+    @Test
+    public void testLogoutShouldNotRedirect() {
+        //GIVEN
+        Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
+        when(request.getCookies()).thenReturn(cookies);
+        when(propertySource.getLogoutRedirection()).thenReturn(Optional.empty());
+        //WHEN
+        underTest.logout(request, response);
+        //THEN
+        verify(authService).logout(USER_ID, ACCESS_TOKEN_ID);
+        verifyZeroInteractions(response);
     }
 }

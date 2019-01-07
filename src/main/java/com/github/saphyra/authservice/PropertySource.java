@@ -2,6 +2,7 @@ package com.github.saphyra.authservice;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public interface PropertySource {
@@ -101,4 +102,11 @@ public interface PropertySource {
      * @return Redirection path
      */
     String getSuccessfulLoginRedirection();
+
+    /**
+     * If the logout was successful, service will redirect to this URI.
+     *
+     * @return Redirection path, or empty if no redirect wanted.
+     */
+    Optional<String> getLogoutRedirection();
 }

@@ -57,12 +57,20 @@ public class AuthController {
     }
 
     @RequestMapping(LOGOUT_MAPPING)
-    public void logout(HttpServletRequest request) {
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
         log.info("Logout request arrived.");
         Optional<String> userId = CookieUtil.getCookie(request, propertySource.getUserIdCookie());
         Optional<String> accessTokenId = CookieUtil.getCookie(request, propertySource.getAccessTokenIdCookie());
         if (userId.isPresent() && accessTokenId.isPresent()) {
             authService.logout(userId.get(), accessTokenId.get());
         }
+        propertySource.getLogoutRedirection().ifPresent(s -> {
+            try {
+                response.sendRedirect(s);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
     }
 }
