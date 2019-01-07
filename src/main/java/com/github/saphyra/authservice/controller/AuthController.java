@@ -8,6 +8,7 @@ import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,14 +31,14 @@ public class AuthController {
     private final AuthService authService;
     private final PropertySource propertySource;
 
-    @PostMapping(value = LOGIN_MAPPING, consumes = "application/json")
+    @PostMapping(value = LOGIN_MAPPING, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void loginByRest(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
         log.info("Login request arrived to REST.");
         login(loginRequest, response);
     }
 
-    @PostMapping(value = LOGIN_MAPPING, consumes = "application/x-www-form-urlencoded")
-    public void loginByForm(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) throws IOException {
+    @PostMapping(value = LOGIN_MAPPING, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public void loginByForm(@Valid LoginRequest loginRequest, HttpServletResponse response) throws IOException {
         log.info("Login request arrived to FORM.");
         try {
             login(loginRequest, response);
