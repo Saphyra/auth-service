@@ -1,7 +1,10 @@
 package com.github.saphyra.authservice.configuration;
 
+import com.github.saphyra.authservice.PropertySource;
+import com.github.saphyra.authservice.filter.AuthFilter;
 import com.github.saphyra.util.IdGenerator;
 import com.github.saphyra.util.OffsetDateTimeProvider;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -26,5 +29,16 @@ public class BeanConfig {
     @Bean
     public AntPathMatcher antPathMatcher() {
         return new AntPathMatcher();
+    }
+
+    @Bean
+    public FilterRegistrationBean<AuthFilter> authFilterFilterRegistrationBean(
+        AuthFilter authFilter,
+        PropertySource propertySource
+    ) {
+        FilterRegistrationBean<AuthFilter> filterRegistrationBean = new FilterRegistrationBean<>();
+        filterRegistrationBean.setFilter(authFilter);
+        filterRegistrationBean.setOrder(propertySource.getFilterOrder());
+        return filterRegistrationBean;
     }
 }
