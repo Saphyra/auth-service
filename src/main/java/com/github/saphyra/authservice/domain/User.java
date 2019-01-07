@@ -14,5 +14,5 @@ import java.util.Set;
 public class User {
     private String userId;
     private Credentials credentials;
-    private Set<Role> roles;
+    private Set<String> roles;
 }

@@ -4,7 +4,6 @@ import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
-import com.github.saphyra.authservice.domain.Role;
 import com.github.saphyra.authservice.domain.User;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import org.junit.Before;
@@ -35,6 +34,8 @@ public class AccessServiceTest {
     private static final String FAKE_USER_ID = "fake_user_id";
     private static final OffsetDateTime CURRENT_DATE = OffsetDateTime.now();
     private static final Long EXPIRATION_MINUTES = 5L;
+    private static final String USER_ROLE = "user_role";
+
     @Mock
     private AccessTokenCache accessTokenCache;
 
@@ -72,7 +73,7 @@ public class AccessServiceTest {
 
         user = User.builder()
             .userId(USER_ID)
-            .roles(new HashSet<>(Arrays.asList(Role.values())))
+            .roles(new HashSet<>(Arrays.asList(USER_ROLE)))
             .build();
 
         when(authDao.findUserById(USER_ID)).thenReturn(Optional.of(user));
@@ -123,8 +124,8 @@ public class AccessServiceTest {
     public void testCanAccessShouldReturnForbiddenWhenUserHasNoRole(){
         //GIVEN
         user.setRoles(new HashSet<>());
-        Map<String, Set<Role>> protectedURIs = new HashMap<>();
-        protectedURIs.put(REQUEST_URI, new HashSet<>(Arrays.asList(Role.ADMIN)));
+        Map<String, Set<String>> protectedURIs = new HashMap<>();
+        protectedURIs.put(REQUEST_URI, new HashSet<>(Arrays.asList(USER_ROLE)));
         when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
         //WHEN
         assertEquals(AccessStatus.FORBIDDEN, underTest.canAccess(REQUEST_URI, USER_ID, ACCESS_TOKEN_ID));
@@ -133,9 +134,9 @@ public class AccessServiceTest {
     @Test
     public void testCanAccessShouldReturnGrantedWhenUserHasRole(){
         //GIVEN
-        user.setRoles(new HashSet<>(Arrays.asList(Role.ADMIN)));
-        Map<String, Set<Role>> protectedURIs = new HashMap<>();
-        protectedURIs.put(REQUEST_URI, new HashSet<>(Arrays.asList(Role.ADMIN)));
+        user.setRoles(new HashSet<>(Arrays.asList(USER_ROLE)));
+        Map<String, Set<String>> protectedURIs = new HashMap<>();
+        protectedURIs.put(REQUEST_URI, new HashSet<>(Arrays.asList(USER_ROLE)));
         when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
         //WHEN
         assertEquals(AccessStatus.GRANTED, underTest.canAccess(REQUEST_URI, USER_ID, ACCESS_TOKEN_ID));

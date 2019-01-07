@@ -4,7 +4,6 @@ import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
-import com.github.saphyra.authservice.domain.Role;
 import com.github.saphyra.authservice.domain.User;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import lombok.RequiredArgsConstructor;
@@ -67,10 +66,10 @@ public class AccessService {
     }
 
     private AccessStatus hasUserAccessForUri(String requestUri, User user) {
-        Set<Role> userRoles = user.getRoles();
+        Set<String> userRoles = user.getRoles();
         log.debug("User roles: {}", userRoles);
 
-        Optional<Map.Entry<String, Set<Role>>> matchingUriOptional = propertySource.getRoleSettings().entrySet().stream()
+        Optional<Map.Entry<String, Set<String>>> matchingUriOptional = propertySource.getRoleSettings().entrySet().stream()
             .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
             .findFirst();
 
@@ -79,7 +78,7 @@ public class AccessService {
             return AccessStatus.GRANTED;
         }
 
-        Set<Role> necessaryRoles = matchingUriOptional.get().getValue();
+        Set<String> necessaryRoles = matchingUriOptional.get().getValue();
         log.debug("Necessary role(s) to access URI {} is {}", requestUri, necessaryRoles);
         boolean hasUserRole = necessaryRoles.stream()
             .anyMatch(userRoles::contains);

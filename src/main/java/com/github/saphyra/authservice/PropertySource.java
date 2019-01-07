@@ -1,7 +1,5 @@
 package com.github.saphyra.authservice;
 
-import com.github.saphyra.authservice.domain.Role;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,7 +71,7 @@ public interface PropertySource {
      *
      * @return Map of URI patterns and Necessary Role(s) to access them.
      */
-    Map<String, Set<Role>> getRoleSettings();
+    Map<String, Set<String>> getRoleSettings();
 
     /**
      * If multiple login is allowed, the user can log in from many devices at the same time.
