@@ -3,12 +3,14 @@ package com.github.saphyra.authservice.filter;
 import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessStatus;
+import com.github.saphyra.authservice.domain.AllowedUri;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
 
 import javax.servlet.FilterChain;
@@ -21,6 +23,7 @@ import java.util.Arrays;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,11 +61,12 @@ public class AuthFilterTest {
 
     @Before
     public void init() {
-        when(propertySource.getAllowedUris()).thenReturn(Arrays.asList(ALLOWED_URI));
+        when(propertySource.getAllowedUris()).thenReturn(Arrays.asList(new AllowedUri(ALLOWED_URI, HttpMethod.POST)));
         when(propertySource.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
         when(propertySource.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
 
         when(request.getRequestURI()).thenReturn(PROTECTED_URI);
+        when(request.getMethod()).thenReturn(HttpMethod.POST.name());
 
         when(antPathMatcher.match(ALLOWED_URI, ALLOWED_URI)).thenReturn(true);
 
@@ -78,6 +82,21 @@ public class AuthFilterTest {
         //THEN
         verifyNoMoreInteractions(authService);
         verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    public void testAllowedPathShouldCallFacadeWhenNotAllowedPath() throws ServletException, IOException {
+        //GIVEN
+        when(request.getRequestURI()).thenReturn(ALLOWED_URI);
+        when(request.getMethod()).thenReturn(HttpMethod.GET.name());
+
+        Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
+        when(request.getCookies()).thenReturn(cookies);
+        //WHEN
+        underTest.doFilterInternal(request, response, filterChain);
+        //THEN
+        verify(authService).canAccess(ALLOWED_URI, USER_ID, ACCESS_TOKEN_ID);
+        verifyZeroInteractions(filterChain);
     }
 
     @Test

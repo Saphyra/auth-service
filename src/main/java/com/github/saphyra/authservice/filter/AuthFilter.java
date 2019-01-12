@@ -3,9 +3,11 @@ package com.github.saphyra.authservice.filter;
 import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessStatus;
+import com.github.saphyra.authservice.domain.AllowedUri;
 import com.github.saphyra.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,22 +31,23 @@ import static com.github.saphyra.authservice.controller.AuthController.LOGIN_MAP
 @RequiredArgsConstructor
 @Component
 public class AuthFilter extends OncePerRequestFilter {
-    private static final List<String> DEFAULT_ALLOWED_URIS = Arrays.asList(
-        "/" + LOGIN_MAPPING
+    private static final List<AllowedUri> DEFAULT_ALLOWED_URIS = Arrays.asList(
+        new AllowedUri("/" + LOGIN_MAPPING, HttpMethod.POST)
     );
 
     private final AntPathMatcher pathMatcher;
     private final AuthService authService;
     private final FilterHelper filterHelper;
     private final PropertySource propertySource;
-    private final Set<String> allowedUris = new HashSet<>();
+    private final Set<AllowedUri> allowedUris = new HashSet<>();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.debug("AuthFilter");
         String path = request.getRequestURI();
+        HttpMethod method = HttpMethod.resolve(request.getMethod());
         log.debug("Request arrived: {}", path);
-        if (isAllowedPath(path)) {
+        if (isAllowedPath(path, method)) {
             log.debug("Allowed path: {}", path);
             filterChain.doFilter(request, response);
         } else {
@@ -58,9 +61,10 @@ public class AuthFilter extends OncePerRequestFilter {
         }
     }
 
-    private boolean isAllowedPath(String path) {
+    private boolean isAllowedPath(String path, HttpMethod method) {
         return allowedUris.stream()
-            .anyMatch(allowedPath -> pathMatcher.match(allowedPath, path));
+            .filter(allowedUri -> pathMatcher.match(allowedUri.getUri(), path))
+            .anyMatch(allowedUri -> allowedUri.getAllowedMethods().contains(method));
     }
 
     private AccessStatus getAccessStatus(HttpServletRequest request) {

@@ -1,5 +1,7 @@
 package com.github.saphyra.authservice;
 
+import com.github.saphyra.authservice.domain.AllowedUri;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,11 +51,11 @@ public interface PropertySource {
     String getUserIdCookie();
 
     /**
-     * List of URIs that do NOT require authorization and authentication.
+     * List of URIs and Http methods that do NOT require authorization and authentication.
      *
      * @return list of allowed URIs
      */
-    List<String> getAllowedUris();
+    List<AllowedUri> getAllowedUris();
 
 
     /**
