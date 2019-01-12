@@ -4,6 +4,7 @@ import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
+import com.github.saphyra.authservice.domain.RoleSetting;
 import com.github.saphyra.authservice.domain.User;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import org.junit.Before;
@@ -12,13 +13,12 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -86,13 +86,13 @@ public class AccessServiceTest {
         //GIVEN
         when(accessTokenCache.get(ACCESS_TOKEN_ID)).thenReturn(Optional.empty());
         //WHEN
-        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
     }
 
     @Test
     public void testCanAccessShouldReturnUnauthorizedWhenBadUserId() {
         //WHEN
-        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, FAKE_USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, FAKE_USER_ID, ACCESS_TOKEN_ID));
     }
 
     @Test
@@ -101,7 +101,7 @@ public class AccessServiceTest {
         accessToken.setPersistent(false);
         accessToken.setLastAccess(OffsetDateTime.now().minusDays(2));
         //WHEN
-        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
     }
 
     @Test
@@ -109,36 +109,62 @@ public class AccessServiceTest {
         //GIVEN
         when(authDao.findUserById(USER_ID)).thenReturn(Optional.empty());
         //WHEN
-        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
     }
 
     @Test
-    public void testCanAccessShouldReturnGrantedWhenUriNotProtected(){
+    public void testCanAccessShouldReturnGrantedWhenUriNotProtected() {
         //GIVEN
-        when(propertySource.getRoleSettings()).thenReturn(new HashMap<>());
+        when(propertySource.getRoleSettings()).thenReturn(new HashSet<>());
         //WHEN
-        assertEquals(AccessStatus.GRANTED, underTest.canAccess(REQUEST_URI, USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.GRANTED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
     }
 
     @Test
-    public void testCanAccessShouldReturnForbiddenWhenUserHasNoRole(){
+    public void testCanAccessShouldReturnForbiddenWhenUserHasNoRole() {
         //GIVEN
         user.setRoles(new HashSet<>());
-        Map<String, Set<String>> protectedURIs = new HashMap<>();
-        protectedURIs.put(REQUEST_URI, new HashSet<>(Arrays.asList(USER_ROLE)));
+        Set<RoleSetting> protectedURIs = new HashSet<>();
+        protectedURIs.add(
+            RoleSetting.builder()
+                .uri(REQUEST_URI)
+                .addProtectedMethod(HttpMethod.POST)
+                .addRole(USER_ROLE)
+                .build()
+        );
         when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
         //WHEN
-        assertEquals(AccessStatus.FORBIDDEN, underTest.canAccess(REQUEST_URI, USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.FORBIDDEN, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
     }
 
     @Test
-    public void testCanAccessShouldReturnGrantedWhenUserHasRole(){
+    public void testCanAccessShouldReturnGrantedWhenDifferentMethod() {
         //GIVEN
-        user.setRoles(new HashSet<>(Arrays.asList(USER_ROLE)));
-        Map<String, Set<String>> protectedURIs = new HashMap<>();
-        protectedURIs.put(REQUEST_URI, new HashSet<>(Arrays.asList(USER_ROLE)));
+        Set<RoleSetting> protectedURIs = new HashSet<>();
+        protectedURIs.add(
+            RoleSetting.builder()
+                .addProtectedMethod(HttpMethod.GET)
+                .addRole(USER_ROLE)
+                .build()
+        );
         when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
         //WHEN
-        assertEquals(AccessStatus.GRANTED, underTest.canAccess(REQUEST_URI, USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.GRANTED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
+    }
+
+    @Test
+    public void testCanAccessShouldReturnGrantedWhenUserHasRole() {
+        //GIVEN
+        user.setRoles(new HashSet<>(Arrays.asList(USER_ROLE)));
+        Set<RoleSetting> protectedURIs = new HashSet<>();
+        protectedURIs.add(
+            RoleSetting.builder()
+                .addProtectedMethod(HttpMethod.POST)
+                .addRole(USER_ROLE)
+                .build()
+        );
+        when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
+        //WHEN
+        assertEquals(AccessStatus.GRANTED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
     }
 }

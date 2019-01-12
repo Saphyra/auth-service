@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpMethod;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -34,11 +35,11 @@ public class AuthServiceFacadeTest {
     @Test
     public void testCanAccessShouldCallServiceAndReturn(){
         //GIVEN
-        when(accessService.canAccess(REQUEST_URI, USER_ID, ACCESS_TOKEN_ID)).thenReturn(AccessStatus.GRANTED);
+        when(accessService.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID)).thenReturn(AccessStatus.GRANTED);
         //WHEN
-        assertEquals(AccessStatus.GRANTED, underTest.canAccess(REQUEST_URI, USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.GRANTED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
         //THEN
-        verify(accessService).canAccess(REQUEST_URI, USER_ID, ACCESS_TOKEN_ID);
+        verify(accessService).canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
     }
 
     @Test

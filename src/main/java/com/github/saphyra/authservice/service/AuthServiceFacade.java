@@ -5,6 +5,7 @@ import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -16,8 +17,8 @@ public class AuthServiceFacade implements AuthService {
     private final LogoutService logoutService;
 
     @Override
-    public AccessStatus canAccess(String requestUri, String userId, String accessTokenId) {
-        return accessService.canAccess(requestUri, userId, accessTokenId);
+    public AccessStatus canAccess(String requestUri, HttpMethod method, String userId, String accessTokenId) {
+        return accessService.canAccess(requestUri, method, userId, accessTokenId);
     }
 
     @Override

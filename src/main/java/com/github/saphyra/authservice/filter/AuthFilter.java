@@ -77,7 +77,12 @@ public class AuthFilter extends OncePerRequestFilter {
             return AccessStatus.UNAUTHORIZED;
         }
 
-        return authService.canAccess(request.getRequestURI(), userIdValue.get(), accessTokenId.get());
+        return authService.canAccess(
+            request.getRequestURI(),
+            HttpMethod.resolve(request.getMethod()),
+            userIdValue.get(),
+            accessTokenId.get()
+        );
     }
 
     @PostConstruct

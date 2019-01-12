@@ -95,7 +95,7 @@ public class AuthFilterTest {
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
-        verify(authService).canAccess(ALLOWED_URI, USER_ID, ACCESS_TOKEN_ID);
+        verify(authService).canAccess(ALLOWED_URI, HttpMethod.GET, USER_ID, ACCESS_TOKEN_ID);
         verifyZeroInteractions(filterChain);
     }
 
@@ -116,11 +116,11 @@ public class AuthFilterTest {
         //GIVEN
         Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
         when(request.getCookies()).thenReturn(cookies);
-        when(authService.canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID)).thenReturn(AccessStatus.GRANTED);
+        when(authService.canAccess(PROTECTED_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID)).thenReturn(AccessStatus.GRANTED);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
-        verify(authService).canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID);
+        verify(authService).canAccess(PROTECTED_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
         verify(filterChain).doFilter(request, response);
     }
 
@@ -129,11 +129,11 @@ public class AuthFilterTest {
         //GIVEN
         Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
         when(request.getCookies()).thenReturn(cookies);
-        when(authService.canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID)).thenReturn(AccessStatus.FORBIDDEN);
+        when(authService.canAccess(PROTECTED_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID)).thenReturn(AccessStatus.FORBIDDEN);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
-        verify(authService).canAccess(PROTECTED_URI, USER_ID, ACCESS_TOKEN_ID);
+        verify(authService).canAccess(PROTECTED_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
         verify(filterHelper).handleUnauthorized(request, response, AccessStatus.FORBIDDEN);
         verifyNoMoreInteractions(filterChain);
     }

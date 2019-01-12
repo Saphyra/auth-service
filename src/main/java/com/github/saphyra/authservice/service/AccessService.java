@@ -4,15 +4,16 @@ import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
+import com.github.saphyra.authservice.domain.RoleSetting;
 import com.github.saphyra.authservice.domain.User;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -26,7 +27,7 @@ public class AccessService {
     private final OffsetDateTimeProvider offsetDateTimeProvider;
     private final PropertySource propertySource;
 
-    public AccessStatus canAccess(String requestUri, String userId, String accessTokenId) {
+    public AccessStatus canAccess(String requestUri, HttpMethod method,  String userId, String accessTokenId) {
         Optional<AccessToken> accessTokenOptional = accessTokenCache.get(accessTokenId);
         if (!accessTokenOptional.isPresent()) {
             log.debug("Access token not found with accessTokenId {}", accessTokenId);
@@ -54,7 +55,7 @@ public class AccessService {
         accessToken.setLastAccess(offsetDateTimeProvider.getCurrentDate());
         authDao.saveAccessToken(accessToken);
 
-        return hasUserAccessForUri(requestUri, userOptional.get());
+        return hasUserAccessForUri(requestUri, method, userOptional.get());
     }
 
     private boolean isAccessTokenExpired(AccessToken accessToken) {
@@ -65,20 +66,26 @@ public class AccessService {
         return offsetDateTimeProvider.getCurrentDate().isAfter(expiration);
     }
 
-    private AccessStatus hasUserAccessForUri(String requestUri, User user) {
+    private AccessStatus hasUserAccessForUri(String requestUri, HttpMethod method,  User user) {
         Set<String> userRoles = user.getRoles();
         log.debug("User roles: {}", userRoles);
 
-        Optional<Map.Entry<String, Set<String>>> matchingUriOptional = propertySource.getRoleSettings().entrySet().stream()
-            .filter(entry -> antPathMatcher.match(entry.getKey(), requestUri))
+        Optional<RoleSetting> matchingRoleSettingOptional = propertySource.getRoleSettings().stream()
+            .filter(roleSetting -> antPathMatcher.match(roleSetting.getUri(), requestUri))
             .findFirst();
 
-        if (!matchingUriOptional.isPresent()) {
+        if (!matchingRoleSettingOptional.isPresent()) {
             log.debug("Request URI {} is not protected with Roles. Access Granted.", requestUri);
             return AccessStatus.GRANTED;
         }
 
-        Set<String> necessaryRoles = matchingUriOptional.get().getValue();
+        RoleSetting roleSetting = matchingRoleSettingOptional.get();
+        if(!roleSetting.getProtectedMethods().contains(method)){
+            log.debug("URI {} with method {} is not protected.", requestUri, method);
+            return AccessStatus.GRANTED;
+        }
+
+        Set<String> necessaryRoles = roleSetting.getRoles();
         log.debug("Necessary role(s) to access URI {} is {}", requestUri, necessaryRoles);
         boolean hasUserRole = necessaryRoles.stream()
             .anyMatch(userRoles::contains);

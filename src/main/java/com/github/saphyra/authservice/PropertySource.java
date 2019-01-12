@@ -1,9 +1,9 @@
 package com.github.saphyra.authservice;
 
 import com.github.saphyra.authservice.domain.AllowedUri;
+import com.github.saphyra.authservice.domain.RoleSetting;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -59,22 +59,25 @@ public interface PropertySource {
 
 
     /**
-     * If an URI requires special role(s) to access, add to this map.
+     * If an URI requires special role(s) to access, add to this map with the protected http methods..
      * <p>
-     * Key: Ant pattern of the URI.
-     * Value: Set of Roles. The user has to have at least one of these roles to access the URI.
+     * Uri: Ant pattern of the URI.
+     * protectedMethods: role check is executed when the request has any of these methods.
+     * roles: Set of Roles. The user has to have at least one of these roles to access the URI.
      * <p>
-     * Example: Endpoints start with "admin/" can only be access with role "ADMIN".
-     * Key: admin/**
-     * Value: [ADMIN]
+     * Example: Endpoints start with "admin/" with method POST can only be access with role "ADMIN".
+     * uri: admin/**
+     * protectedMethods: [HttpMethod.POST]
+     * roles: [ADMIN]
      * <p>
-     * Example: Endpoints start with "user/" can be access with role "USER" and "ADMIN", but "VISITOR" cannot.
-     * * Key: user/**
-     * * Value: [ADMIN, USER]
+     * Example: Endpoints start with "user/" with all methods can be access with role "USER" and "ADMIN", but "VISITOR" cannot.
+     * * uri: user/**
+     * protectedMethods [HttpMethod.values()]
+     * * protectedMethods: [ADMIN, USER]
      *
      * @return Map of URI patterns and Necessary Role(s) to access them.
      */
-    Map<String, Set<String>> getRoleSettings();
+    Set<RoleSetting> getRoleSettings();
 
     /**
      * If multiple login is allowed, the user can log in from many devices at the same time.
