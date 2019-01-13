@@ -143,6 +143,7 @@ public class AccessServiceTest {
         Set<RoleSetting> protectedURIs = new HashSet<>();
         protectedURIs.add(
             RoleSetting.builder()
+                .uri(REQUEST_URI)
                 .addProtectedMethod(HttpMethod.GET)
                 .addRole(USER_ROLE)
                 .build()
@@ -159,6 +160,7 @@ public class AccessServiceTest {
         Set<RoleSetting> protectedURIs = new HashSet<>();
         protectedURIs.add(
             RoleSetting.builder()
+                .uri(REQUEST_URI)
                 .addProtectedMethod(HttpMethod.POST)
                 .addRole(USER_ROLE)
                 .build()

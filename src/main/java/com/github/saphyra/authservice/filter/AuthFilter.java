@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.github.saphyra.authservice.controller.AuthController.LOGIN_MAPPING;
+import static com.github.saphyra.authservice.controller.AuthController.LOGOUT_MAPPING;
 
 
 @Slf4j
@@ -32,7 +33,8 @@ import static com.github.saphyra.authservice.controller.AuthController.LOGIN_MAP
 @Component
 public class AuthFilter extends OncePerRequestFilter {
     private static final List<AllowedUri> DEFAULT_ALLOWED_URIS = Arrays.asList(
-        new AllowedUri("/" + LOGIN_MAPPING, HttpMethod.POST)
+        new AllowedUri("/" + LOGIN_MAPPING, HttpMethod.POST),
+        new AllowedUri("/" + LOGOUT_MAPPING, HttpMethod.POST)
     );
 
     private final AntPathMatcher pathMatcher;

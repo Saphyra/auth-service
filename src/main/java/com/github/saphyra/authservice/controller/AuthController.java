@@ -25,7 +25,7 @@ import java.util.Optional;
 @Slf4j
 public class AuthController {
     public static final String LOGIN_MAPPING = "login";
-    private static final String LOGOUT_MAPPING = "logout";
+    public static final String LOGOUT_MAPPING = "logout";
     static final String UNAUTHORIZED_PARAM = "loginFailure=unauthorized";
 
     private final AuthService authService;
