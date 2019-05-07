@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.service;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.domain.AccessToken;
@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class AccessTokenCache extends AbstractCache<String, AccessToken> {
+class AccessTokenCache extends AbstractCache<String, AccessToken> {
     private final AuthDao authDao;
 
     public AccessTokenCache(AuthDao authDao) {

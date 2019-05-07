@@ -1,8 +1,8 @@
-package com.github.saphyra.authservice.controller;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.PropertySource;
-import com.github.saphyra.authservice.controller.request.LoginRequest;
+import com.github.saphyra.authservice.domain.LoginRequest;
 import com.github.saphyra.authservice.domain.AccessToken;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.CookieUtil;
@@ -23,22 +23,22 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class AuthController {
-    public static final String LOGIN_MAPPING = "login";
-    public static final String LOGOUT_MAPPING = "logout";
+class AuthController {
+    static final String LOGIN_MAPPING = "login";
+    static final String LOGOUT_MAPPING = "logout";
     static final String UNAUTHORIZED_PARAM = "loginFailure=unauthorized";
 
     private final AuthService authService;
     private final PropertySource propertySource;
 
     @PostMapping(value = LOGIN_MAPPING, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void loginByRest(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
+    void loginByRest(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
         log.info("Login request arrived to REST.");
         login(loginRequest, response);
     }
 
     @PostMapping(value = LOGIN_MAPPING, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public void loginByForm(@Valid LoginRequest loginRequest, HttpServletResponse response) throws IOException {
+    void loginByForm(@Valid LoginRequest loginRequest, HttpServletResponse response) throws IOException {
         log.info("Login request arrived to FORM.");
         try {
             login(loginRequest, response);
@@ -57,7 +57,7 @@ public class AuthController {
     }
 
     @RequestMapping(LOGOUT_MAPPING)
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
+    void logout(HttpServletRequest request, HttpServletResponse response) {
         log.info("Logout request arrived.");
         Optional<String> userId = CookieUtil.getCookie(request, propertySource.getUserIdCookie());
         Optional<String> accessTokenId = CookieUtil.getCookie(request, propertySource.getAccessTokenIdCookie());

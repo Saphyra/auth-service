@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.service;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
@@ -7,6 +7,8 @@ import com.github.saphyra.authservice.domain.AccessToken;
 import com.github.saphyra.authservice.domain.AllowedUri;
 import com.github.saphyra.authservice.domain.RoleSetting;
 import com.github.saphyra.authservice.domain.User;
+import com.github.saphyra.authservice.impl.AccessService;
+import com.github.saphyra.authservice.impl.AccessTokenCache;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +28,6 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)

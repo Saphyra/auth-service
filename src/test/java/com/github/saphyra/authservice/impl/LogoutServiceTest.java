@@ -1,7 +1,9 @@
-package com.github.saphyra.authservice.service;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.domain.AccessToken;
+import com.github.saphyra.authservice.impl.AccessTokenCache;
+import com.github.saphyra.authservice.impl.LogoutService;
 import com.github.saphyra.exceptionhandling.exception.ForbiddenException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +22,7 @@ public class LogoutServiceTest {
     private static final String USER_ID = "user_id";
     private static final String FAKE_USER_ID = "fake_user_id";
     @Mock
-    private  AccessTokenCache accessTokenCache;
+    private AccessTokenCache accessTokenCache;
 
     @Mock
     private  AuthDao authDao;

@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.filter;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessStatus;
@@ -13,17 +13,18 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FilterHelper {
+class FilterHelper {
     private static final String DEFAULT_REDIRECTION = "/";
+
     private final PropertySource propertySource;
 
-    public void handleUnauthorized(HttpServletRequest request, HttpServletResponse response, AccessStatus accessStatus) throws IOException {
+    void handleUnauthorized(HttpServletRequest request, HttpServletResponse response, AccessStatus accessStatus) throws IOException {
         if (propertySource.getRestTypeValue().equals(request.getHeader(propertySource.getRequestTypeHeader()))) {
             log.info("Sending error. Cause: Access denied. AccessStatus: {}", accessStatus);
             response.sendError(accessStatus.getResponseStatus(), "Access denied: " + accessStatus.name());
         } else {
             String redirection = DEFAULT_REDIRECTION;
-            switch (accessStatus){
+            switch (accessStatus) {
                 case FORBIDDEN:
                     redirection = propertySource.getForbiddenRedirection();
                     break;

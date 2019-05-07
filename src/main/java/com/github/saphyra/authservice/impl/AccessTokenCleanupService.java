@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.service;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
@@ -15,13 +15,13 @@ import java.time.OffsetDateTime;
 @RequiredArgsConstructor
 @Service
 @EnableScheduling
-public class AccessTokenCleanupService {
+class AccessTokenCleanupService {
     private final AuthDao authDao;
     private final OffsetDateTimeProvider offsetDateTimeProvider;
     private final PropertySource propertySource;
 
     @Scheduled(cron = "0 * * * * *")
-    public void deleteExpiredAccessTokens(){
+    void deleteExpiredAccessTokens(){
         OffsetDateTime expiration = offsetDateTimeProvider.getCurrentDate().minusMinutes(propertySource.getTokenExpirationMinutes());
         authDao.deleteExpiredAccessTokens(expiration);
     }

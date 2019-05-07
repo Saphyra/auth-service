@@ -58,4 +58,12 @@ public interface AuthDao {
      * @param accessToken AccessToken to save (or update).
      */
     void saveAccessToken(AccessToken accessToken);
+
+    /**
+     *
+     * @param enteredPassword the password entered by the user.
+     * @param storedPassword the password stored in the User entity.
+     * @return true if the user entered correct password, false otherwise.
+     */
+    boolean authenticate(String enteredPassword, String storedPassword);
 }

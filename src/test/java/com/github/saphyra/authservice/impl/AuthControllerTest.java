@@ -1,9 +1,9 @@
-package com.github.saphyra.authservice.controller;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.PropertySource;
-import com.github.saphyra.authservice.controller.request.LoginRequest;
 import com.github.saphyra.authservice.domain.AccessToken;
+import com.github.saphyra.authservice.domain.LoginRequest;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import org.junit.Before;
 import org.junit.Test;

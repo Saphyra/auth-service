@@ -1,9 +1,11 @@
-package com.github.saphyra.authservice.filter;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AllowedUri;
+import com.github.saphyra.authservice.impl.AuthFilter;
+import com.github.saphyra.authservice.impl.FilterHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

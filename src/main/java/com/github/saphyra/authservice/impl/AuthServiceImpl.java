@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.service;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.domain.AccessStatus;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class AuthServiceFacade implements AuthService {
+public class AuthServiceImpl implements AuthService {
     private final AccessService accessService;
     private final LoginService loginService;
     private final LogoutService logoutService;

@@ -1,11 +1,11 @@
-package com.github.saphyra.authservice.service;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessToken;
 import com.github.saphyra.authservice.domain.Credentials;
 import com.github.saphyra.authservice.domain.User;
-import com.github.saphyra.encryption.impl.PasswordService;
+import com.github.saphyra.authservice.impl.LoginService;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.IdGenerator;
 import com.github.saphyra.util.OffsetDateTimeProvider;
@@ -43,9 +43,6 @@ public class LoginServiceTest {
     private OffsetDateTimeProvider offsetDateTimeProvider;
 
     @Mock
-    private PasswordService passwordService;
-
-    @Mock
     private PropertySource propertySource;
 
     @InjectMocks
@@ -58,7 +55,7 @@ public class LoginServiceTest {
             .credentials(new Credentials(USER_NAME, PASSWORD_TOKEN))
             .build();
         when(authDao.findUserByUserName(USER_NAME)).thenReturn(Optional.of(user));
-        when(passwordService.authenticate(PASSWORD, PASSWORD_TOKEN)).thenReturn(true);
+        when(authDao.authenticate(PASSWORD, PASSWORD_TOKEN)).thenReturn(true);
         when(propertySource.isMultipleLoginAllowed()).thenReturn(true);
     }
 
@@ -73,7 +70,7 @@ public class LoginServiceTest {
     @Test(expected = UnauthorizedException.class)
     public void testLoginShouldThrowExceptionWhenBadPassword() {
         //GIVEN
-        when(passwordService.authenticate(PASSWORD, PASSWORD_TOKEN)).thenReturn(false);
+        when(authDao.authenticate(PASSWORD, PASSWORD_TOKEN)).thenReturn(false);
         //WHEN
         underTest.login(USER_NAME, PASSWORD, false);
     }

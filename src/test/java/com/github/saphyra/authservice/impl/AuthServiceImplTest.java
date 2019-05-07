@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.service;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
@@ -14,7 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AuthServiceFacadeTest {
+public class AuthServiceImplTest {
     private static final String REQUEST_URI = "request_uri";
     private static final String USER_ID = "user_id";
     private static final String ACCESS_TOKEN_ID = "access_token_id";
@@ -30,7 +30,7 @@ public class AuthServiceFacadeTest {
     private LogoutService logoutService;
 
     @InjectMocks
-    private AuthServiceFacade underTest;
+    private AuthServiceImpl underTest;
 
     @Test
     public void testCanAccessShouldCallServiceAndReturn(){

@@ -1,7 +1,8 @@
-package com.github.saphyra.authservice.service;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
+import com.github.saphyra.authservice.impl.AccessTokenCleanupService;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;

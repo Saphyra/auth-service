@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.filter;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.PropertySource;
@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.github.saphyra.authservice.controller.AuthController.LOGIN_MAPPING;
-import static com.github.saphyra.authservice.controller.AuthController.LOGOUT_MAPPING;
+import static com.github.saphyra.authservice.impl.AuthController.LOGIN_MAPPING;
+import static com.github.saphyra.authservice.impl.AuthController.LOGOUT_MAPPING;
 
 
 @Slf4j
@@ -88,7 +88,7 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     @PostConstruct
-    public void mapAllowedUris() {
+    void mapAllowedUris() {
         allowedUris.addAll(DEFAULT_ALLOWED_URIS);
         allowedUris.addAll(propertySource.getAllowedUris());
     }

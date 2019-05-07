@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.controller.request;
+package com.github.saphyra.authservice.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,12 +1,4 @@
-package com.github.saphyra.authservice.service;
-
-import java.time.OffsetDateTime;
-import java.util.Optional;
-import java.util.Set;
-
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Service;
-import org.springframework.util.AntPathMatcher;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
@@ -17,6 +9,13 @@ import com.github.saphyra.authservice.domain.User;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
+import org.springframework.stereotype.Service;
+import org.springframework.util.AntPathMatcher;
+
+import java.time.OffsetDateTime;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor

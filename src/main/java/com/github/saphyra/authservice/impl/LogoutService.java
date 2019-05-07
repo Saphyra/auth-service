@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.service;
+package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.exceptionhandling.exception.ForbiddenException;
@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class LogoutService {
+class LogoutService {
     private final AccessTokenCache accessTokenCache;
     private final AuthDao authDao;
 
-    public void logout(String userId, String accessTokenId) {
+    void logout(String userId, String accessTokenId) {
         accessTokenCache.get(accessTokenId).ifPresent(accessToken -> {
             if (accessToken.getUserId().equals(userId)) {
                 accessTokenCache.invalidate(accessTokenId);
