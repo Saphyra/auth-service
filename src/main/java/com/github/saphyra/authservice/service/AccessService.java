@@ -1,5 +1,13 @@
 package com.github.saphyra.authservice.service;
 
+import java.time.OffsetDateTime;
+import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.http.HttpMethod;
+import org.springframework.stereotype.Service;
+import org.springframework.util.AntPathMatcher;
+
 import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessStatus;
@@ -9,25 +17,18 @@ import com.github.saphyra.authservice.domain.User;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Service;
-import org.springframework.util.AntPathMatcher;
-
-import java.time.OffsetDateTime;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AccessService {
+class AccessService {
     private final AccessTokenCache accessTokenCache;
     private final AntPathMatcher antPathMatcher;
     private final AuthDao authDao;
     private final OffsetDateTimeProvider offsetDateTimeProvider;
     private final PropertySource propertySource;
 
-    public AccessStatus canAccess(String requestUri, HttpMethod method,  String userId, String accessTokenId) {
+    AccessStatus canAccess(String requestUri, HttpMethod method, String userId, String accessTokenId) {
         Optional<AccessToken> accessTokenOptional = accessTokenCache.get(accessTokenId);
         if (!accessTokenOptional.isPresent()) {
             log.debug("Access token not found with accessTokenId {}", accessTokenId);
@@ -51,11 +52,22 @@ public class AccessService {
             return AccessStatus.UNAUTHORIZED;
         }
 
-        log.debug("AccessToken is valid. Updating lastAccess...");
-        accessToken.setLastAccess(offsetDateTimeProvider.getCurrentDate());
-        authDao.saveAccessToken(accessToken);
+        log.debug("AccessToken is valid.");
+        if (isExtendingUri(requestUri, method)) {
+            log.debug("Uri {} for HttpMethod {} is a session-extending uri. Updatig last-access...", requestUri, method);
+            accessToken.setLastAccess(offsetDateTimeProvider.getCurrentDate());
+            authDao.saveAccessToken(accessToken);
+        }
 
         return hasUserAccessForUri(requestUri, method, userOptional.get());
+    }
+
+    private boolean isExtendingUri(String requestUri, HttpMethod method) {
+        return propertySource.getNonSessionExtendingUris().stream()
+            .noneMatch(allowedUri ->
+                allowedUri.getAllowedMethods().contains(method)
+                    && antPathMatcher.match(allowedUri.getUri(), requestUri)
+            );
     }
 
     private boolean isAccessTokenExpired(AccessToken accessToken) {
@@ -66,7 +78,7 @@ public class AccessService {
         return offsetDateTimeProvider.getCurrentDate().isAfter(expiration);
     }
 
-    private AccessStatus hasUserAccessForUri(String requestUri, HttpMethod method,  User user) {
+    private AccessStatus hasUserAccessForUri(String requestUri, HttpMethod method, User user) {
         Set<String> userRoles = user.getRoles();
         log.debug("User roles: {}", userRoles);
 
@@ -80,7 +92,7 @@ public class AccessService {
         }
 
         RoleSetting roleSetting = matchingRoleSettingOptional.get();
-        if(!roleSetting.getProtectedMethods().contains(method)){
+        if (!roleSetting.getProtectedMethods().contains(method)) {
             log.debug("URI {} with method {} is not protected.", requestUri, method);
             return AccessStatus.GRANTED;
         }

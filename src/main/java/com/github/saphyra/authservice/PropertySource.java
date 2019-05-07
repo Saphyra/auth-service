@@ -1,11 +1,13 @@
 package com.github.saphyra.authservice;
 
-import com.github.saphyra.authservice.domain.AllowedUri;
-import com.github.saphyra.authservice.domain.RoleSetting;
-
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import com.github.saphyra.authservice.domain.AllowedUri;
+import com.github.saphyra.authservice.domain.RoleSetting;
 
 public interface PropertySource {
     /**
@@ -55,8 +57,17 @@ public interface PropertySource {
      *
      * @return list of allowed URIs
      */
-    List<AllowedUri> getAllowedUris();
+    default List<AllowedUri> getAllowedUris() {
+        return Collections.emptyList();
+    }
 
+    /**
+     * List of URIs and Http methods that do NOT extend the user's session when called.
+     * @return list of non-extending uris
+     */
+    default List<AllowedUri> getNonSessionExtendingUris(){
+        return Collections.emptyList();
+    }
 
     /**
      * If an URI requires special role(s) to access, add to this map with the protected http methods..
@@ -77,7 +88,9 @@ public interface PropertySource {
      *
      * @return Map of URI patterns and Necessary Role(s) to access them.
      */
-    Set<RoleSetting> getRoleSettings();
+    default Set<RoleSetting> getRoleSettings() {
+        return new HashSet<>();
+    }
 
     /**
      * If multiple login is allowed, the user can log in from many devices at the same time.
@@ -113,5 +126,7 @@ public interface PropertySource {
      *
      * @return Redirection path, or empty if no redirect wanted.
      */
-    Optional<String> getLogoutRedirection();
+    default Optional<String> getLogoutRedirection() {
+        return Optional.empty();
+    }
 }

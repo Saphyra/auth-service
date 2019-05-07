@@ -4,6 +4,7 @@ import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
+import com.github.saphyra.authservice.domain.AllowedUri;
 import com.github.saphyra.authservice.domain.RoleSetting;
 import com.github.saphyra.authservice.domain.User;
 import com.github.saphyra.util.OffsetDateTimeProvider;
@@ -23,6 +24,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -134,7 +138,11 @@ public class AccessServiceTest {
         );
         when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
         //WHEN
-        assertEquals(AccessStatus.FORBIDDEN, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
+        AccessStatus result = underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
+        //THEN
+        assertEquals(AccessStatus.FORBIDDEN, result);
+        verify(authDao).saveAccessToken(accessToken);
+        assertEquals(CURRENT_DATE, accessToken.getLastAccess());
     }
 
     @Test
@@ -150,7 +158,11 @@ public class AccessServiceTest {
         );
         when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
         //WHEN
-        assertEquals(AccessStatus.GRANTED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
+        AccessStatus result = underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
+        //THEN
+        assertEquals(AccessStatus.GRANTED, result);
+        verify(authDao).saveAccessToken(accessToken);
+        assertEquals(CURRENT_DATE, accessToken.getLastAccess());
     }
 
     @Test
@@ -167,6 +179,32 @@ public class AccessServiceTest {
         );
         when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
         //WHEN
-        assertEquals(AccessStatus.GRANTED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
+        AccessStatus result = underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
+        //THEN
+        assertEquals(AccessStatus.GRANTED, result);
+        verify(authDao).saveAccessToken(accessToken);
+        assertEquals(CURRENT_DATE, accessToken.getLastAccess());
+    }
+
+    @Test
+    public void canAccess_doesNotUpdateLastAccess(){
+        //GIVEN
+        user.setRoles(new HashSet<>(Arrays.asList(USER_ROLE)));
+        Set<RoleSetting> protectedURIs = new HashSet<>();
+        protectedURIs.add(
+            RoleSetting.builder()
+                .uri(REQUEST_URI)
+                .addProtectedMethod(HttpMethod.POST)
+                .addRole(USER_ROLE)
+                .build()
+        );
+        when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
+        when(propertySource.getNonSessionExtendingUris()).thenReturn(Arrays.asList(new AllowedUri(REQUEST_URI, HttpMethod.POST)));
+        //WHEN
+        AccessStatus result = underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
+        //THEN
+        assertEquals(AccessStatus.GRANTED, result);
+        verify(authDao).findUserById(USER_ID);
+        verifyNoMoreInteractions(authDao);
     }
 }
