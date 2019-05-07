@@ -1,7 +1,7 @@
 package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
-import com.github.saphyra.authservice.PropertySource;
+import com.github.saphyra.authservice.configuration.PropertyConfiguration;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +18,11 @@ import java.time.OffsetDateTime;
 class AccessTokenCleanupService {
     private final AuthDao authDao;
     private final OffsetDateTimeProvider offsetDateTimeProvider;
-    private final PropertySource propertySource;
+    private final PropertyConfiguration propertyConfiguration;
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "${com.github.saphyra.authservice.access-token.cleanup-interval-cron}")
     void deleteExpiredAccessTokens(){
-        OffsetDateTime expiration = offsetDateTimeProvider.getCurrentDate().minusMinutes(propertySource.getTokenExpirationMinutes());
+        OffsetDateTime expiration = offsetDateTimeProvider.getCurrentDate().minusSeconds(propertyConfiguration.getExpirationSeconds());
         authDao.deleteExpiredAccessTokens(expiration);
     }
 }

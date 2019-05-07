@@ -2,13 +2,12 @@ package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
 import com.github.saphyra.authservice.PropertySource;
+import com.github.saphyra.authservice.configuration.PropertyConfiguration;
 import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
 import com.github.saphyra.authservice.domain.AllowedUri;
 import com.github.saphyra.authservice.domain.RoleSetting;
 import com.github.saphyra.authservice.domain.User;
-import com.github.saphyra.authservice.impl.AccessService;
-import com.github.saphyra.authservice.impl.AccessTokenCache;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +37,7 @@ public class AccessServiceTest {
     private static final OffsetDateTime LAST_ACCESS = OffsetDateTime.now();
     private static final String FAKE_USER_ID = "fake_user_id";
     private static final OffsetDateTime CURRENT_DATE = OffsetDateTime.now();
-    private static final Long EXPIRATION_MINUTES = 5L;
+    private static final Long EXPIRATION_SECONDS = 5L;
     private static final String USER_ROLE = "user_role";
 
     @Mock
@@ -55,6 +54,9 @@ public class AccessServiceTest {
 
     @Mock
     private PropertySource propertySource;
+
+    @Mock
+    private PropertyConfiguration propertyConfiguration;
 
     private AccessToken accessToken;
 
@@ -74,7 +76,7 @@ public class AccessServiceTest {
 
         when(accessTokenCache.get(ACCESS_TOKEN_ID)).thenReturn(Optional.of(accessToken));
         when(offsetDateTimeProvider.getCurrentDate()).thenReturn(CURRENT_DATE);
-        when(propertySource.getTokenExpirationMinutes()).thenReturn(EXPIRATION_MINUTES);
+        when(propertyConfiguration.getExpirationSeconds()).thenReturn(EXPIRATION_SECONDS);
 
         user = User.builder()
             .userId(USER_ID)

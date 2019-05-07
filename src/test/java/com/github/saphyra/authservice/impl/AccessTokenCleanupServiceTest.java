@@ -1,8 +1,7 @@
 package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
-import com.github.saphyra.authservice.PropertySource;
-import com.github.saphyra.authservice.impl.AccessTokenCleanupService;
+import com.github.saphyra.authservice.configuration.PropertyConfiguration;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +24,7 @@ public class AccessTokenCleanupServiceTest {
     private OffsetDateTimeProvider offsetDateTimeProvider;
 
     @Mock
-    private PropertySource propertySource;
+    private PropertyConfiguration propertyConfiguration;
 
     @InjectMocks
     private AccessTokenCleanupService underTest;
@@ -34,7 +33,7 @@ public class AccessTokenCleanupServiceTest {
     public void testCleanup(){
         //GIVEN
         when(offsetDateTimeProvider.getCurrentDate()).thenReturn(OffsetDateTime.now());
-        when(propertySource.getTokenExpirationMinutes()).thenReturn(1L);
+        when(propertyConfiguration.getExpirationSeconds()).thenReturn(1L);
         //WHEN
         underTest.deleteExpiredAccessTokens();
         //THEN

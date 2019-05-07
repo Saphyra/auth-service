@@ -1,13 +1,13 @@
 package com.github.saphyra.authservice;
 
+import com.github.saphyra.authservice.domain.AllowedUri;
+import com.github.saphyra.authservice.domain.RoleSetting;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import com.github.saphyra.authservice.domain.AllowedUri;
-import com.github.saphyra.authservice.domain.RoleSetting;
 
 public interface PropertySource {
     /**
@@ -99,13 +99,6 @@ public interface PropertySource {
      * @return true, if multiple login is allowed, false if not.
      */
     boolean isMultipleLoginAllowed();
-
-    /**
-     * AccessToken expires after X minutes.
-     *
-     * @return AccessToken expiration in minutes.
-     */
-    long getTokenExpirationMinutes();
 
     /**
      * This value determinates the filter's place in filter chain. The lower the value, the earlier the filter runs.
