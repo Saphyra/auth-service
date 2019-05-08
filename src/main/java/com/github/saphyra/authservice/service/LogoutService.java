@@ -18,6 +18,7 @@ public class LogoutService {
             if (accessToken.getUserId().equals(userId)) {
                 accessTokenCache.invalidate(accessTokenId);
                 authDao.deleteAccessToken(accessToken);
+                authDao.successfulLogoutCallback(accessToken);
             } else throw new ForbiddenException(userId + " has no access to accessToken " + accessTokenId);
         });
     }

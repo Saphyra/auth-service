@@ -55,6 +55,7 @@ public class LogoutServiceTest {
         //THEN
         verify(accessTokenCache).invalidate(ACCESS_TOKEN_ID);
         verify(authDao).deleteAccessToken(accessToken);
+        verify(authDao).successfulLogoutCallback(accessToken);
     }
 
 }
