@@ -1,10 +1,10 @@
 package com.github.saphyra.authservice;
 
-import com.github.saphyra.authservice.domain.AccessToken;
-import com.github.saphyra.authservice.domain.User;
-
 import java.time.OffsetDateTime;
 import java.util.Optional;
+
+import com.github.saphyra.authservice.domain.AccessToken;
+import com.github.saphyra.authservice.domain.User;
 
 public interface AuthDao {
     /**
@@ -58,6 +58,25 @@ public interface AuthDao {
      * @param accessToken AccessToken to save (or update).
      */
     void saveAccessToken(AccessToken accessToken);
+
+
+    /**
+     * This method is called when the user is logged out successfully, allowing the client to execute cleanup processes.
+     *
+     * @param deletedAccessToken the deleted accessToken.
+     */
+    default void successfulLogoutCallback(AccessToken deletedAccessToken) {
+
+    }
+
+    /**
+     * This method is called when the user is logged in successfully, allowing the client to execute cleanup processes.
+     *
+     * @param accessToken the newly created accessToken.
+     */
+    default void successfulLoginCallback(AccessToken accessToken) {
+
+    }
 
     /**
      *

@@ -16,7 +16,7 @@ class AccessTokenCache extends AbstractCache<String, AccessToken> {
     public AccessTokenCache(AuthDao authDao) {
         super(
             CacheBuilder.newBuilder()
-                .expireAfterAccess(2, TimeUnit.SECONDS)
+                .expireAfterWrite(2, TimeUnit.SECONDS)
                 .build()
         );
         this.authDao = authDao;

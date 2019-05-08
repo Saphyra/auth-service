@@ -99,5 +99,6 @@ public class LoginServiceTest {
         assertEquals(USER_ID, argumentCaptor.getValue().getUserId());
         assertEquals(CURRENT_DATE, argumentCaptor.getValue().getLastAccess());
         assertFalse(argumentCaptor.getValue().isPersistent());
+        verify(authDao).successfulLoginCallback(argumentCaptor.getValue());
     }
 }

@@ -44,6 +44,7 @@ class LoginService {
             .build();
 
         authDao.saveAccessToken(accessToken);
+        authDao.successfulLoginCallback(accessToken);
         return accessToken;
     }
 }
