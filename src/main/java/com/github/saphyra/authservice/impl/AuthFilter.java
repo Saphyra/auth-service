@@ -39,6 +39,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
     private final AntPathMatcher pathMatcher;
     private final AuthService authService;
+    private final CookieUtil cookieUtil;
     private final FilterHelper filterHelper;
     private final PropertySource propertySource;
     private final Set<AllowedUri> allowedUris = new HashSet<>();
@@ -71,8 +72,8 @@ public class AuthFilter extends OncePerRequestFilter {
 
     private AccessStatus getAccessStatus(HttpServletRequest request) {
         log.debug("Authenticating...");
-        Optional<String> accessTokenId = CookieUtil.getCookie(request, propertySource.getAccessTokenIdCookie());
-        Optional<String> userIdValue = CookieUtil.getCookie(request, propertySource.getUserIdCookie());
+        Optional<String> accessTokenId = cookieUtil.getCookie(request, propertySource.getAccessTokenIdCookie());
+        Optional<String> userIdValue = cookieUtil.getCookie(request, propertySource.getUserIdCookie());
 
         if (!accessTokenId.isPresent() || !userIdValue.isPresent()) {
             log.warn("Cookies not found.");

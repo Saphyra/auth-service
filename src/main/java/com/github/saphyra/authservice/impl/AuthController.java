@@ -2,8 +2,8 @@ package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.PropertySource;
-import com.github.saphyra.authservice.domain.LoginRequest;
 import com.github.saphyra.authservice.domain.AccessToken;
+import com.github.saphyra.authservice.domain.LoginRequest;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +29,7 @@ class AuthController {
     static final String UNAUTHORIZED_PARAM = "loginFailure=unauthorized";
 
     private final AuthService authService;
+    private final CookieUtil cookieUtil;
     private final PropertySource propertySource;
 
     @PostMapping(value = LOGIN_MAPPING, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -51,16 +52,16 @@ class AuthController {
     private void login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
         AccessToken accessToken = authService.login(loginRequest.getUserName(), loginRequest.getPassword(), loginRequest.getRememberMe());
         int expiration = accessToken.isPersistent() ? Integer.MAX_VALUE : -1;
-        CookieUtil.setCookie(response, propertySource.getUserIdCookie(), accessToken.getUserId(), expiration);
-        CookieUtil.setCookie(response, propertySource.getAccessTokenIdCookie(), accessToken.getAccessTokenId(), expiration);
+        cookieUtil.setCookie(response, propertySource.getUserIdCookie(), accessToken.getUserId(), expiration);
+        cookieUtil.setCookie(response, propertySource.getAccessTokenIdCookie(), accessToken.getAccessTokenId(), expiration);
         log.info("Access token successfully created, and sent for the client.");
     }
 
     @RequestMapping(LOGOUT_MAPPING)
     void logout(HttpServletRequest request, HttpServletResponse response) {
         log.info("Logout request arrived.");
-        Optional<String> userId = CookieUtil.getCookie(request, propertySource.getUserIdCookie());
-        Optional<String> accessTokenId = CookieUtil.getCookie(request, propertySource.getAccessTokenIdCookie());
+        Optional<String> userId = cookieUtil.getCookie(request, propertySource.getUserIdCookie());
+        Optional<String> accessTokenId = cookieUtil.getCookie(request, propertySource.getAccessTokenIdCookie());
         if (userId.isPresent() && accessTokenId.isPresent()) {
             authService.logout(userId.get(), accessTokenId.get());
         }

@@ -5,6 +5,7 @@ import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessToken;
 import com.github.saphyra.authservice.domain.LoginRequest;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
+import com.github.saphyra.util.CookieUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,15 +13,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -49,6 +48,9 @@ public class AuthControllerTest {
     @Mock
     private HttpServletRequest request;
 
+    @Mock
+    private CookieUtil cookieUtil;
+
     @InjectMocks
     private AuthController underTest;
 
@@ -72,7 +74,8 @@ public class AuthControllerTest {
         underTest.loginByRest(loginRequest, response);
         //THEN
         verify(authService).login(USERNAME, PASSWORD, loginRequest.getRememberMe());
-        verify(response, times(2)).addCookie(any(Cookie.class));
+        verify(cookieUtil).setCookie(response, COOKIE_USER_ID, USER_ID, -1);
+        verify(cookieUtil).setCookie(response, COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID, -1);
     }
 
     @Test
@@ -86,7 +89,8 @@ public class AuthControllerTest {
         underTest.loginByForm(loginRequest, response);
         //THEN
         verify(authService).login(USERNAME, PASSWORD, loginRequest.getRememberMe());
-        verify(response, times(2)).addCookie(any(Cookie.class));
+        verify(cookieUtil).setCookie(response, COOKIE_USER_ID, USER_ID, -1);
+        verify(cookieUtil).setCookie(response, COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID, -1);
         verify(response).sendRedirect(LOGIN_REDIRECTION);
     }
 
@@ -106,8 +110,8 @@ public class AuthControllerTest {
     @Test
     public void testLogout() throws IOException {
         //GIVEN
-        Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
-        when(request.getCookies()).thenReturn(cookies);
+        given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
+        given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
         //WHEN
         underTest.logout(request, response);
         //THEN
@@ -118,8 +122,8 @@ public class AuthControllerTest {
     @Test
     public void testLogoutShouldNotRedirect() {
         //GIVEN
-        Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
-        when(request.getCookies()).thenReturn(cookies);
+        given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
+        given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
         when(propertySource.getLogoutRedirection()).thenReturn(Optional.empty());
         //WHEN
         underTest.logout(request, response);

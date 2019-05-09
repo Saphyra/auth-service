@@ -4,8 +4,7 @@ import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.PropertySource;
 import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AllowedUri;
-import com.github.saphyra.authservice.impl.AuthFilter;
-import com.github.saphyra.authservice.impl.FilterHelper;
+import com.github.saphyra.util.CookieUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,12 +16,13 @@ import org.springframework.util.AntPathMatcher;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -58,6 +58,9 @@ public class AuthFilterTest {
     @Mock
     private AntPathMatcher antPathMatcher;
 
+    @Mock
+    private CookieUtil cookieUtil;
+
     @InjectMocks
     private AuthFilter underTest;
 
@@ -92,8 +95,8 @@ public class AuthFilterTest {
         when(request.getRequestURI()).thenReturn(ALLOWED_URI);
         when(request.getMethod()).thenReturn(HttpMethod.GET.name());
 
-        Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
-        when(request.getCookies()).thenReturn(cookies);
+        given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
+        given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
@@ -103,8 +106,6 @@ public class AuthFilterTest {
 
     @Test
     public void testAuthenticationShouldNotCallFacadeWhenCookieNotFound() throws ServletException, IOException {
-        //GIVEN
-        when(request.getCookies()).thenReturn(null);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
@@ -116,8 +117,8 @@ public class AuthFilterTest {
     @Test
     public void testAuthenticationShouldCallFacadeAndFilterChain() throws ServletException, IOException {
         //GIVEN
-        Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
-        when(request.getCookies()).thenReturn(cookies);
+        given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
+        given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
         when(authService.canAccess(PROTECTED_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID)).thenReturn(AccessStatus.GRANTED);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
@@ -129,8 +130,8 @@ public class AuthFilterTest {
     @Test
     public void testShouldCallFilterHelperWhenNotAuthenticated() throws ServletException, IOException {
         //GIVEN
-        Cookie[] cookies = new Cookie[]{new Cookie(COOKIE_USER_ID, USER_ID), new Cookie(COOKIE_ACCESS_TOKEN_ID, ACCESS_TOKEN_ID)};
-        when(request.getCookies()).thenReturn(cookies);
+        given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
+        given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
         when(authService.canAccess(PROTECTED_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID)).thenReturn(AccessStatus.FORBIDDEN);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
