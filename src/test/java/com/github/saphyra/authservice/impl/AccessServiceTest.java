@@ -1,7 +1,7 @@
 package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
-import com.github.saphyra.authservice.PropertySource;
+import com.github.saphyra.authservice.UriConfiguration;
 import com.github.saphyra.authservice.configuration.PropertyConfiguration;
 import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
@@ -53,7 +53,7 @@ public class AccessServiceTest {
     private OffsetDateTimeProvider offsetDateTimeProvider;
 
     @Mock
-    private PropertySource propertySource;
+    private UriConfiguration uriConfiguration;
 
     @Mock
     private PropertyConfiguration propertyConfiguration;
@@ -122,7 +122,7 @@ public class AccessServiceTest {
     @Test
     public void testCanAccessShouldReturnGrantedWhenUriNotProtected() {
         //GIVEN
-        when(propertySource.getRoleSettings()).thenReturn(new HashSet<>());
+        when(uriConfiguration.getRoleSettings()).thenReturn(new HashSet<>());
         //WHEN
         assertEquals(AccessStatus.GRANTED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
     }
@@ -139,7 +139,7 @@ public class AccessServiceTest {
                 .addRole(USER_ROLE)
                 .build()
         );
-        when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
+        when(uriConfiguration.getRoleSettings()).thenReturn(protectedURIs);
         //WHEN
         AccessStatus result = underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
         //THEN
@@ -159,7 +159,7 @@ public class AccessServiceTest {
                 .addRole(USER_ROLE)
                 .build()
         );
-        when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
+        when(uriConfiguration.getRoleSettings()).thenReturn(protectedURIs);
         //WHEN
         AccessStatus result = underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
         //THEN
@@ -180,7 +180,7 @@ public class AccessServiceTest {
                 .addRole(USER_ROLE)
                 .build()
         );
-        when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
+        when(uriConfiguration.getRoleSettings()).thenReturn(protectedURIs);
         //WHEN
         AccessStatus result = underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
         //THEN
@@ -201,8 +201,8 @@ public class AccessServiceTest {
                 .addRole(USER_ROLE)
                 .build()
         );
-        when(propertySource.getRoleSettings()).thenReturn(protectedURIs);
-        when(propertySource.getNonSessionExtendingUris()).thenReturn(Arrays.asList(new AllowedUri(REQUEST_URI, HttpMethod.POST)));
+        when(uriConfiguration.getRoleSettings()).thenReturn(protectedURIs);
+        when(uriConfiguration.getNonSessionExtendingUris()).thenReturn(Arrays.asList(new AllowedUri(REQUEST_URI, HttpMethod.POST)));
         //WHEN
         AccessStatus result = underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
         //THEN

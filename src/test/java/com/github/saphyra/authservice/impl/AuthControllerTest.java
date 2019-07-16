@@ -1,11 +1,17 @@
 package com.github.saphyra.authservice.impl;
 
-import com.github.saphyra.authservice.AuthService;
-import com.github.saphyra.authservice.PropertySource;
-import com.github.saphyra.authservice.domain.AccessToken;
-import com.github.saphyra.authservice.domain.LoginRequest;
-import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
-import com.github.saphyra.util.CookieUtil;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,16 +19,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.util.Optional;
-
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import com.github.saphyra.authservice.AuthService;
+import com.github.saphyra.authservice.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.domain.AccessToken;
+import com.github.saphyra.authservice.domain.LoginRequest;
+import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
+import com.github.saphyra.util.CookieUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthControllerTest {
@@ -40,7 +42,7 @@ public class AuthControllerTest {
     private AuthService authService;
 
     @Mock
-    private PropertySource propertySource;
+    private PropertyConfiguration propertyConfiguration;
 
     @Mock
     private HttpServletResponse response;
@@ -56,11 +58,11 @@ public class AuthControllerTest {
 
     @Before
     public void init() {
-        when(propertySource.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
-        when(propertySource.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
-        when(propertySource.getSuccessfulLoginRedirection()).thenReturn(LOGIN_REDIRECTION);
-        when(propertySource.getUnauthorizedRedirection()).thenReturn(UNAUTHORIZED_REDIRECTION);
-        when(propertySource.getLogoutRedirection()).thenReturn(Optional.of(LOGOUT_REDIRECTION));
+        when(propertyConfiguration.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
+        when(propertyConfiguration.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
+        when(propertyConfiguration.getSuccessfulLoginRedirection()).thenReturn(LOGIN_REDIRECTION);
+        when(propertyConfiguration.getUnauthorizedLoginRedirection()).thenReturn(UNAUTHORIZED_REDIRECTION);
+        when(propertyConfiguration.getLogoutRedirection()).thenReturn(LOGOUT_REDIRECTION);
     }
 
     @Test
@@ -124,7 +126,7 @@ public class AuthControllerTest {
         //GIVEN
         given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
-        when(propertySource.getLogoutRedirection()).thenReturn(Optional.empty());
+        when(propertyConfiguration.getLogoutRedirection()).thenReturn(null);
         //WHEN
         underTest.logout(request, response);
         //THEN

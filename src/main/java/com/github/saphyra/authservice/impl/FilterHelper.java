@@ -1,40 +1,47 @@
 package com.github.saphyra.authservice.impl;
 
-import com.github.saphyra.authservice.PropertySource;
-import com.github.saphyra.authservice.domain.AccessStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.saphyra.authservice.ErrorResponseResolver;
+import com.github.saphyra.authservice.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.domain.AuthContext;
+import com.github.saphyra.authservice.domain.RestErrorResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 class FilterHelper {
-    private static final String DEFAULT_REDIRECTION = "/";
+    private final ErrorResponseResolver errorResponseResolver;
+    private final ObjectMapper objectMapper;
+    private final PropertyConfiguration propertyConfiguration;
 
-    private final PropertySource propertySource;
-
-    void handleUnauthorized(HttpServletRequest request, HttpServletResponse response, AccessStatus accessStatus) throws IOException {
-        if (propertySource.getRestTypeValue().equals(request.getHeader(propertySource.getRequestTypeHeader()))) {
-            log.info("Sending error. Cause: Access denied. AccessStatus: {}", accessStatus);
-            response.sendError(accessStatus.getResponseStatus(), "Access denied: " + accessStatus.name());
+    void handleAccessDenied(HttpServletRequest request, HttpServletResponse response, AuthContext authContext) throws IOException {
+        if (propertyConfiguration.getRestTypeValue().equals(request.getHeader(propertyConfiguration.getRequestTypeHeader()))) {
+            log.info("Sending error. Cause: Access denied. AccessStatus: {}", authContext.getAccessStatus());
+            RestErrorResponse errorResponse = errorResponseResolver.getRestErrorResponse(authContext);
+            response.sendError(errorResponse.getHttpStatus().value(), safeToJson(errorResponse.getResponseBody()));
         } else {
-            String redirection = DEFAULT_REDIRECTION;
-            switch (accessStatus) {
-                case FORBIDDEN:
-                    redirection = propertySource.getForbiddenRedirection();
-                    break;
-                case UNAUTHORIZED:
-                    redirection = propertySource.getUnauthorizedRedirection();
-                    break;
-            }
+            String redirectionPath = errorResponseResolver.getRedirectionPath(authContext);
+            log.info("Redirecting to {}", redirectionPath);
+            response.sendRedirect(redirectionPath);
+        }
+    }
 
-            log.info("Redirect to {}. Cause: Access denied. AccessStatus: {}", redirection, accessStatus);
-            response.sendRedirect(redirection);
+    //TODO eliminate after adding ObjectMapperWrapper to util lib
+    private String safeToJson(Object responseBody) {
+        try {
+            return objectMapper.writeValueAsString(responseBody);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 }

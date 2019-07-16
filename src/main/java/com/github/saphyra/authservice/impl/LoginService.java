@@ -1,7 +1,11 @@
 package com.github.saphyra.authservice.impl;
 
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
 import com.github.saphyra.authservice.AuthDao;
-import com.github.saphyra.authservice.PropertySource;
+import com.github.saphyra.authservice.configuration.PropertyConfiguration;
 import com.github.saphyra.authservice.domain.AccessToken;
 import com.github.saphyra.authservice.domain.Credentials;
 import com.github.saphyra.authservice.domain.User;
@@ -10,9 +14,6 @@ import com.github.saphyra.util.IdGenerator;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ class LoginService {
     private final AuthDao authDao;
     private final IdGenerator idGenerator;
     private final OffsetDateTimeProvider offsetDateTimeProvider;
-    private final PropertySource propertySource;
+    private final PropertyConfiguration propertyConfiguration;
 
     AccessToken login(String userName, String password, Boolean rememberMe) {
         User user = authDao.findUserByUserName(userName)
@@ -32,7 +33,7 @@ class LoginService {
             throw new UnauthorizedException("Bad password.");
         }
 
-        if (!propertySource.isMultipleLoginAllowed()) {
+        if (!propertyConfiguration.isMultipleLoginAllowed()) {
             authDao.deleteAccessTokenByUserId(user.getUserId());
         }
 

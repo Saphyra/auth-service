@@ -1,7 +1,7 @@
 package com.github.saphyra.authservice.impl;
 
 import com.github.saphyra.authservice.AuthDao;
-import com.github.saphyra.authservice.PropertySource;
+import com.github.saphyra.authservice.UriConfiguration;
 import com.github.saphyra.authservice.configuration.PropertyConfiguration;
 import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
@@ -26,7 +26,7 @@ class AccessService {
     private final AntPathMatcher antPathMatcher;
     private final AuthDao authDao;
     private final OffsetDateTimeProvider offsetDateTimeProvider;
-    private final PropertySource propertySource;
+    private final UriConfiguration uriConfiguration;
     private final PropertyConfiguration propertyConfiguration;
 
     AccessStatus canAccess(String requestUri, HttpMethod method, String userId, String accessTokenId) {
@@ -64,7 +64,7 @@ class AccessService {
     }
 
     private boolean isExtendingUri(String requestUri, HttpMethod method) {
-        return propertySource.getNonSessionExtendingUris().stream()
+        return uriConfiguration.getNonSessionExtendingUris().stream()
             .noneMatch(allowedUri ->
                 allowedUri.getAllowedMethods().contains(method)
                     && antPathMatcher.match(allowedUri.getUri(), requestUri)
@@ -83,7 +83,7 @@ class AccessService {
         Set<String> userRoles = user.getRoles();
         log.debug("User roles: {}", userRoles);
 
-        Optional<RoleSetting> matchingRoleSettingOptional = propertySource.getRoleSettings().stream()
+        Optional<RoleSetting> matchingRoleSettingOptional = uriConfiguration.getRoleSettings().stream()
             .filter(roleSetting -> antPathMatcher.match(roleSetting.getUri(), requestUri))
             .findFirst();
 

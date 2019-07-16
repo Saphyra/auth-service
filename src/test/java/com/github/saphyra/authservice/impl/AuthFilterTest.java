@@ -1,32 +1,39 @@
 package com.github.saphyra.authservice.impl;
 
-import com.github.saphyra.authservice.AuthService;
-import com.github.saphyra.authservice.PropertySource;
-import com.github.saphyra.authservice.domain.AccessStatus;
-import com.github.saphyra.authservice.domain.AllowedUri;
-import com.github.saphyra.util.CookieUtil;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
-
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import com.github.saphyra.authservice.AuthService;
+import com.github.saphyra.authservice.UriConfiguration;
+import com.github.saphyra.authservice.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.domain.AccessStatus;
+import com.github.saphyra.authservice.domain.AllowedUri;
+import com.github.saphyra.authservice.domain.AuthContext;
+import com.github.saphyra.util.CookieUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthFilterTest {
@@ -53,7 +60,10 @@ public class AuthFilterTest {
     private FilterHelper filterHelper;
 
     @Mock
-    private PropertySource propertySource;
+    private UriConfiguration uriConfiguration;
+
+    @Mock
+    private PropertyConfiguration propertyConfiguration;
 
     @Mock
     private AntPathMatcher antPathMatcher;
@@ -66,9 +76,9 @@ public class AuthFilterTest {
 
     @Before
     public void init() {
-        when(propertySource.getAllowedUris()).thenReturn(Arrays.asList(new AllowedUri(ALLOWED_URI, HttpMethod.POST)));
-        when(propertySource.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
-        when(propertySource.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
+        when(uriConfiguration.getAllowedUris()).thenReturn(Arrays.asList(new AllowedUri(ALLOWED_URI, HttpMethod.POST)));
+        when(propertyConfiguration.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
+        when(propertyConfiguration.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
 
         when(request.getRequestURI()).thenReturn(PROTECTED_URI);
         when(request.getMethod()).thenReturn(HttpMethod.POST.name());
@@ -111,7 +121,13 @@ public class AuthFilterTest {
         //THEN
         verifyNoMoreInteractions(authService);
         verifyNoMoreInteractions(filterChain);
-        verify(filterHelper).handleUnauthorized(request, response, AccessStatus.UNAUTHORIZED);
+        ArgumentCaptor<AuthContext> argumentCaptor = ArgumentCaptor.forClass(AuthContext.class);
+        verify(filterHelper).handleAccessDenied(eq(request), eq(response), argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getRequestUri()).isEqualTo(PROTECTED_URI);
+        assertThat(argumentCaptor.getValue().getRequestMethod()).isEqualTo(HttpMethod.POST);
+        assertThat(argumentCaptor.getValue().getAccessTokenId()).isEmpty();
+        assertThat(argumentCaptor.getValue().getUserId()).isEmpty();
+        assertThat(argumentCaptor.getValue().getAccessStatus()).isEqualTo(AccessStatus.UNAUTHORIZED);
     }
 
     @Test
@@ -137,7 +153,14 @@ public class AuthFilterTest {
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
         verify(authService).canAccess(PROTECTED_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
-        verify(filterHelper).handleUnauthorized(request, response, AccessStatus.FORBIDDEN);
+
+        ArgumentCaptor<AuthContext> argumentCaptor = ArgumentCaptor.forClass(AuthContext.class);
+        verify(filterHelper).handleAccessDenied(eq(request), eq(response), argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getRequestUri()).isEqualTo(PROTECTED_URI);
+        assertThat(argumentCaptor.getValue().getRequestMethod()).isEqualTo(HttpMethod.POST);
+        assertThat(argumentCaptor.getValue().getAccessTokenId()).contains(ACCESS_TOKEN_ID);
+        assertThat(argumentCaptor.getValue().getUserId()).contains(USER_ID);
+        assertThat(argumentCaptor.getValue().getAccessStatus()).isEqualTo(AccessStatus.FORBIDDEN);
         verifyNoMoreInteractions(filterChain);
     }
 }

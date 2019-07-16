@@ -1,29 +1,41 @@
 package com.github.saphyra.authservice.impl;
 
-import com.github.saphyra.authservice.PropertySource;
-import com.github.saphyra.authservice.domain.AccessStatus;
-import com.github.saphyra.authservice.impl.FilterHelper;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.saphyra.authservice.ErrorResponseResolver;
+import com.github.saphyra.authservice.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.domain.AuthContext;
+import com.github.saphyra.authservice.domain.RestErrorResponse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FilterHelperTest {
     private static final String REQUEST_TYPE_HEADER = "header";
     private static final String REST_TYPE_REQUEST = "rest";
     private static final String REDIRECTION_PATH = "redirection";
+    private static final String  RESPONSE_BODY = "response_body";
+
+    @Mock
+    private ErrorResponseResolver errorResponseResolver;
+
+    @Mock
+    private ObjectMapper objectMapper;
+
     @Mock
     private HttpServletRequest request;
 
@@ -31,48 +43,42 @@ public class FilterHelperTest {
     private HttpServletResponse response;
 
     @Mock
-    private PropertySource propertySource;
+    private PropertyConfiguration propertyConfiguration;
 
     @InjectMocks
     private FilterHelper underTest;
 
+    @Mock
+    private AuthContext authContext;
+
     @Before
-    public void init(){
-        when(propertySource.getRequestTypeHeader()).thenReturn(REQUEST_TYPE_HEADER);
-        when(propertySource.getRestTypeValue()).thenReturn(REST_TYPE_REQUEST);
-        when(propertySource.getUnauthorizedRedirection()).thenReturn(REDIRECTION_PATH);
-        when(propertySource.getForbiddenRedirection()).thenReturn(REDIRECTION_PATH);
+    public void init() {
+        when(propertyConfiguration.getRequestTypeHeader()).thenReturn(REQUEST_TYPE_HEADER);
+        when(propertyConfiguration.getRestTypeValue()).thenReturn(REST_TYPE_REQUEST);
     }
 
     @Test
     public void testHandleUnauthorizedShouldSendErrorWhenUnauthorizedRest() throws IOException {
         //GIVEN
         when(request.getHeader(REQUEST_TYPE_HEADER)).thenReturn(REST_TYPE_REQUEST);
+
+        RestErrorResponse restErrorResponse = new RestErrorResponse(HttpStatus.BAD_REQUEST, RESPONSE_BODY);
+        given(errorResponseResolver.getRestErrorResponse(authContext)).willReturn(restErrorResponse);
+        given(objectMapper.writeValueAsString(RESPONSE_BODY)).willReturn(RESPONSE_BODY);
         //WHEN
-        underTest.handleUnauthorized(request, response, AccessStatus.UNAUTHORIZED);
+        underTest.handleAccessDenied(request, response, authContext);
         //THEN
-        verify(response).sendError(eq(AccessStatus.UNAUTHORIZED.getResponseStatus()), anyString());
+        verify(response).sendError(HttpStatus.BAD_REQUEST.value(), RESPONSE_BODY);
     }
 
     @Test
     public void testHandleUnauthorizedShouldRedirectWhenUnauthorizedNotRest() throws IOException {
         //GIVEN
         when(request.getHeader(REQUEST_TYPE_HEADER)).thenReturn(null);
+        given(errorResponseResolver.getRedirectionPath(authContext)).willReturn(REDIRECTION_PATH);
         //WHEN
-        underTest.handleUnauthorized(request, response, AccessStatus.UNAUTHORIZED);
+        underTest.handleAccessDenied(request, response, authContext);
         //THEN
-        verify(propertySource).getUnauthorizedRedirection();
-        verify(response).sendRedirect(REDIRECTION_PATH);
-    }
-
-    @Test
-    public void testHandleUnauthorizedShouldRedirectWhenForbiddenNotRest() throws IOException {
-        //GIVEN
-        when(request.getHeader(REQUEST_TYPE_HEADER)).thenReturn(null);
-        //WHEN
-        underTest.handleUnauthorized(request, response, AccessStatus.FORBIDDEN);
-        //THEN
-        verify(propertySource).getForbiddenRedirection();
         verify(response).sendRedirect(REDIRECTION_PATH);
     }
 }

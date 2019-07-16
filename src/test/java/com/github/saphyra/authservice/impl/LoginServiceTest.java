@@ -1,14 +1,13 @@
 package com.github.saphyra.authservice.impl;
 
-import com.github.saphyra.authservice.AuthDao;
-import com.github.saphyra.authservice.PropertySource;
-import com.github.saphyra.authservice.domain.AccessToken;
-import com.github.saphyra.authservice.domain.Credentials;
-import com.github.saphyra.authservice.domain.User;
-import com.github.saphyra.authservice.impl.LoginService;
-import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
-import com.github.saphyra.util.IdGenerator;
-import com.github.saphyra.util.OffsetDateTimeProvider;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.OffsetDateTime;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,13 +16,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.OffsetDateTime;
-import java.util.Optional;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.github.saphyra.authservice.AuthDao;
+import com.github.saphyra.authservice.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.domain.AccessToken;
+import com.github.saphyra.authservice.domain.Credentials;
+import com.github.saphyra.authservice.domain.User;
+import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
+import com.github.saphyra.util.IdGenerator;
+import com.github.saphyra.util.OffsetDateTimeProvider;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LoginServiceTest {
@@ -43,7 +43,7 @@ public class LoginServiceTest {
     private OffsetDateTimeProvider offsetDateTimeProvider;
 
     @Mock
-    private PropertySource propertySource;
+    private PropertyConfiguration propertyConfiguration;
 
     @InjectMocks
     private LoginService underTest;
@@ -56,7 +56,7 @@ public class LoginServiceTest {
             .build();
         when(authDao.findUserByUserName(USER_NAME)).thenReturn(Optional.of(user));
         when(authDao.authenticate(PASSWORD, PASSWORD_TOKEN)).thenReturn(true);
-        when(propertySource.isMultipleLoginAllowed()).thenReturn(true);
+        when(propertyConfiguration.isMultipleLoginAllowed()).thenReturn(true);
     }
 
     @Test(expected = UnauthorizedException.class)
@@ -78,7 +78,7 @@ public class LoginServiceTest {
     @Test
     public void testLoginShouldDeleteOthersWhenMultipleLoginNotAllowed(){
         //GIVEN
-        when(propertySource.isMultipleLoginAllowed()).thenReturn(false);
+        when(propertyConfiguration.isMultipleLoginAllowed()).thenReturn(false);
         //WHEN
         underTest.login(USER_NAME, PASSWORD, false);
         //THEN

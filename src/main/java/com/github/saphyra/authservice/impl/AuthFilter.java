@@ -1,22 +1,8 @@
 package com.github.saphyra.authservice.impl;
 
-import com.github.saphyra.authservice.AuthService;
-import com.github.saphyra.authservice.PropertySource;
-import com.github.saphyra.authservice.domain.AccessStatus;
-import com.github.saphyra.authservice.domain.AllowedUri;
-import com.github.saphyra.util.CookieUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.web.filter.OncePerRequestFilter;
+import static com.github.saphyra.authservice.impl.AuthController.LOGIN_MAPPING;
+import static com.github.saphyra.authservice.impl.AuthController.LOGOUT_MAPPING;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -24,8 +10,26 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.github.saphyra.authservice.impl.AuthController.LOGIN_MAPPING;
-import static com.github.saphyra.authservice.impl.AuthController.LOGOUT_MAPPING;
+import javax.annotation.PostConstruct;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.HttpMethod;
+import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.github.saphyra.authservice.AuthService;
+import com.github.saphyra.authservice.UriConfiguration;
+import com.github.saphyra.authservice.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.domain.AccessStatus;
+import com.github.saphyra.authservice.domain.AllowedUri;
+import com.github.saphyra.authservice.domain.AuthContext;
+import com.github.saphyra.util.CookieUtil;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
@@ -37,12 +41,13 @@ public class AuthFilter extends OncePerRequestFilter {
         new AllowedUri("/" + LOGOUT_MAPPING, HttpMethod.POST)
     );
 
-    private final AntPathMatcher pathMatcher;
+    private final Set<AllowedUri> allowedUris = new HashSet<>();
     private final AuthService authService;
     private final CookieUtil cookieUtil;
     private final FilterHelper filterHelper;
-    private final PropertySource propertySource;
-    private final Set<AllowedUri> allowedUris = new HashSet<>();
+    private final AntPathMatcher pathMatcher;
+    private final PropertyConfiguration propertyConfiguration;
+    private final UriConfiguration uriConfiguration;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -54,12 +59,21 @@ public class AuthFilter extends OncePerRequestFilter {
             log.debug("Allowed path: {}", path);
             filterChain.doFilter(request, response);
         } else {
-            AccessStatus accessStatus = getAccessStatus(request);
+            Optional<String> accessTokenId = cookieUtil.getCookie(request, propertyConfiguration.getAccessTokenIdCookie());
+            Optional<String> userId = cookieUtil.getCookie(request, propertyConfiguration.getUserIdCookie());
+            AccessStatus accessStatus = getAccessStatus(request, accessTokenId, userId);
             if (accessStatus == AccessStatus.GRANTED) {
                 log.debug("Access granted.: {}", path);
                 filterChain.doFilter(request, response);
             } else {
-                filterHelper.handleUnauthorized(request, response, accessStatus);
+                AuthContext authContext = AuthContext.builder()
+                    .requestUri(path)
+                    .requestMethod(method)
+                    .accessTokenId(accessTokenId)
+                    .userId(userId)
+                    .accessStatus(accessStatus)
+                    .build();
+                filterHelper.handleAccessDenied(request, response, authContext);
             }
         }
     }
@@ -70,11 +84,8 @@ public class AuthFilter extends OncePerRequestFilter {
             .anyMatch(allowedUri -> allowedUri.getAllowedMethods().contains(method));
     }
 
-    private AccessStatus getAccessStatus(HttpServletRequest request) {
+    private AccessStatus getAccessStatus(HttpServletRequest request, Optional<String> accessTokenId, Optional<String> userIdValue) {
         log.debug("Authenticating...");
-        Optional<String> accessTokenId = cookieUtil.getCookie(request, propertySource.getAccessTokenIdCookie());
-        Optional<String> userIdValue = cookieUtil.getCookie(request, propertySource.getUserIdCookie());
-
         if (!accessTokenId.isPresent() || !userIdValue.isPresent()) {
             log.warn("Cookies not found.");
             return AccessStatus.UNAUTHORIZED;
@@ -91,6 +102,6 @@ public class AuthFilter extends OncePerRequestFilter {
     @PostConstruct
     void mapAllowedUris() {
         allowedUris.addAll(DEFAULT_ALLOWED_URIS);
-        allowedUris.addAll(propertySource.getAllowedUris());
+        allowedUris.addAll(uriConfiguration.getAllowedUris());
     }
 }
