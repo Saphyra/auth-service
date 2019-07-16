@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +29,7 @@ public class FilterHelperTest {
     private static final String REQUEST_TYPE_HEADER = "header";
     private static final String REST_TYPE_REQUEST = "rest";
     private static final String REDIRECTION_PATH = "redirection";
-    private static final String  RESPONSE_BODY = "response_body";
+    private static final String RESPONSE_BODY = "response_body";
 
     @Mock
     private ErrorResponseResolver errorResponseResolver;
@@ -51,6 +52,9 @@ public class FilterHelperTest {
     @Mock
     private AuthContext authContext;
 
+    @Mock
+    private PrintWriter writer;
+
     @Before
     public void init() {
         when(propertyConfiguration.getRequestTypeHeader()).thenReturn(REQUEST_TYPE_HEADER);
@@ -65,10 +69,15 @@ public class FilterHelperTest {
         RestErrorResponse restErrorResponse = new RestErrorResponse(HttpStatus.BAD_REQUEST, RESPONSE_BODY);
         given(errorResponseResolver.getRestErrorResponse(authContext)).willReturn(restErrorResponse);
         given(objectMapper.writeValueAsString(RESPONSE_BODY)).willReturn(RESPONSE_BODY);
+
+        given(response.getWriter()).willReturn(writer);
         //WHEN
         underTest.handleAccessDenied(request, response, authContext);
         //THEN
-        verify(response).sendError(HttpStatus.BAD_REQUEST.value(), RESPONSE_BODY);
+        verify(response).setStatus(HttpStatus.BAD_REQUEST.value());
+        verify(writer).write(RESPONSE_BODY);
+        verify(writer).flush();
+        verify(writer).close();
     }
 
     @Test

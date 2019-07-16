@@ -1,6 +1,7 @@
 package com.github.saphyra.authservice.impl;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +29,11 @@ class FilterHelper {
         if (propertyConfiguration.getRestTypeValue().equals(request.getHeader(propertyConfiguration.getRequestTypeHeader()))) {
             log.info("Sending error. Cause: Access denied. AccessStatus: {}", authContext.getAccessStatus());
             RestErrorResponse errorResponse = errorResponseResolver.getRestErrorResponse(authContext);
-            response.sendError(errorResponse.getHttpStatus().value(), safeToJson(errorResponse.getResponseBody()));
+            response.setStatus(errorResponse.getHttpStatus().value());
+            PrintWriter writer = response.getWriter();
+            writer.write(safeToJson(errorResponse.getResponseBody()));
+            writer.flush();
+            writer.close();
         } else {
             String redirectionPath = errorResponseResolver.getRedirectionPath(authContext);
             log.info("Redirecting to {}", redirectionPath);
