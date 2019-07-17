@@ -1,12 +1,8 @@
 package com.github.saphyra.authservice.impl;
 
-import static com.github.saphyra.authservice.impl.AuthController.LOGIN_MAPPING;
-import static com.github.saphyra.authservice.impl.AuthController.LOGOUT_MAPPING;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,16 +27,10 @@ import com.github.saphyra.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class AuthFilter extends OncePerRequestFilter {
-    private static final List<AllowedUri> DEFAULT_ALLOWED_URIS = Arrays.asList(
-        new AllowedUri("/" + LOGIN_MAPPING, HttpMethod.POST),
-        new AllowedUri("/" + LOGOUT_MAPPING, HttpMethod.POST)
-    );
-
     private final Set<AllowedUri> allowedUris = new HashSet<>();
     private final AuthService authService;
     private final CookieUtil cookieUtil;
@@ -101,7 +91,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
     @PostConstruct
     void mapAllowedUris() {
-        allowedUris.addAll(DEFAULT_ALLOWED_URIS);
+        allowedUris.addAll(propertyConfiguration.getDefaultAllowedUris());
         allowedUris.addAll(uriConfiguration.getAllowedUris());
     }
 }

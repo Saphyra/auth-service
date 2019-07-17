@@ -1,8 +1,13 @@
 package com.github.saphyra.authservice.configuration;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
+import com.github.saphyra.authservice.domain.AllowedUri;
 import lombok.Getter;
 
 @Component
@@ -26,9 +31,6 @@ public class PropertyConfiguration {
     @Value("${com.github.saphyra.authservice.rest.rest-type-value:}")
     private String restTypeValue;
 
-    @Value("${com.github.saphyra.authservice.login.unauthorized-redirection:}")
-    private String unauthorizedLoginRedirection;
-
     @Value("${com.github.saphyra.authservice.login.successful-redirection:}")
     private String successfulLoginRedirection;
 
@@ -37,4 +39,17 @@ public class PropertyConfiguration {
 
     @Value("${com.github.saphyra.authservice.login.multiple-login-allowed}")
     private boolean multipleLoginAllowed;
+
+    @Value("${com.github.saphyra.authservice.login.path:/login}")
+    private String loginPath;
+
+    @Value("${com.github.saphyra.authservice.login.path:/logout}")
+    private String logoutPath;
+
+    public List<AllowedUri> getDefaultAllowedUris() {
+        return Arrays.asList(
+            new AllowedUri(loginPath, HttpMethod.POST),
+            new AllowedUri(logoutPath, HttpMethod.POST)
+        );
+    }
 }
