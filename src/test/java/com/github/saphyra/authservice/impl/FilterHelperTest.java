@@ -18,11 +18,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.saphyra.authservice.ErrorResponseResolver;
 import com.github.saphyra.authservice.configuration.PropertyConfiguration;
 import com.github.saphyra.authservice.domain.AuthContext;
 import com.github.saphyra.authservice.domain.RestErrorResponse;
+import com.github.saphyra.util.ObjectMapperWrapper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FilterHelperTest {
@@ -35,7 +35,7 @@ public class FilterHelperTest {
     private ErrorResponseResolver errorResponseResolver;
 
     @Mock
-    private ObjectMapper objectMapper;
+    private ObjectMapperWrapper objectMapperWrapper;
 
     @Mock
     private HttpServletRequest request;
@@ -68,7 +68,7 @@ public class FilterHelperTest {
 
         RestErrorResponse restErrorResponse = new RestErrorResponse(HttpStatus.BAD_REQUEST, RESPONSE_BODY);
         given(errorResponseResolver.getRestErrorResponse(authContext)).willReturn(restErrorResponse);
-        given(objectMapper.writeValueAsString(RESPONSE_BODY)).willReturn(RESPONSE_BODY);
+        given(objectMapperWrapper.writeValueAsString(RESPONSE_BODY)).willReturn(RESPONSE_BODY);
 
         given(response.getWriter()).willReturn(writer);
         //WHEN

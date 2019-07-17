@@ -8,12 +8,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.saphyra.authservice.ErrorResponseResolver;
 import com.github.saphyra.authservice.configuration.PropertyConfiguration;
 import com.github.saphyra.authservice.domain.AuthContext;
 import com.github.saphyra.authservice.domain.RestErrorResponse;
+import com.github.saphyra.util.ObjectMapperWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 class FilterHelper {
     private final ErrorResponseResolver errorResponseResolver;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapperWrapper objectMapperWrapper;
     private final PropertyConfiguration propertyConfiguration;
 
     void handleAccessDenied(HttpServletRequest request, HttpServletResponse response, AuthContext authContext) throws IOException {
@@ -31,22 +30,13 @@ class FilterHelper {
             RestErrorResponse errorResponse = errorResponseResolver.getRestErrorResponse(authContext);
             response.setStatus(errorResponse.getHttpStatus().value());
             PrintWriter writer = response.getWriter();
-            writer.write(safeToJson(errorResponse.getResponseBody()));
+            writer.write(objectMapperWrapper.writeValueAsString(errorResponse.getResponseBody()));
             writer.flush();
             writer.close();
         } else {
             String redirectionPath = errorResponseResolver.getRedirectionPath(authContext);
             log.info("Redirecting to {}", redirectionPath);
             response.sendRedirect(redirectionPath);
-        }
-    }
-
-    //TODO eliminate after adding ObjectMapperWrapper to util lib
-    private String safeToJson(Object responseBody) {
-        try {
-            return objectMapper.writeValueAsString(responseBody);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         }
     }
 }
