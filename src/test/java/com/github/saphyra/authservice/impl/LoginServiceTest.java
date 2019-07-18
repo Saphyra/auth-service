@@ -2,6 +2,7 @@ package com.github.saphyra.authservice.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,6 +58,9 @@ public class LoginServiceTest {
         when(authDao.findUserByUserName(USER_NAME)).thenReturn(Optional.of(user));
         when(authDao.authenticate(PASSWORD, PASSWORD_TOKEN)).thenReturn(true);
         when(propertyConfiguration.isMultipleLoginAllowed()).thenReturn(true);
+
+        given(idGenerator.generateRandomId()).willReturn(ACCESS_TOKEN_ID);
+        given(offsetDateTimeProvider.getCurrentDate()).willReturn(CURRENT_DATE);
     }
 
     @Test(expected = UnauthorizedException.class)
@@ -87,9 +91,6 @@ public class LoginServiceTest {
 
     @Test
     public void testLoginShouldCreateToken(){
-        //GIVEN
-        when(idGenerator.generateRandomId()).thenReturn(ACCESS_TOKEN_ID);
-        when(offsetDateTimeProvider.getCurrentDate()).thenReturn(CURRENT_DATE);
         //WHEN
         underTest.login(USER_NAME, PASSWORD, null);
         //THEN

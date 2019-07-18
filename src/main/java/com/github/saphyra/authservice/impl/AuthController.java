@@ -37,9 +37,11 @@ class AuthController {
     @PostMapping(value = "${com.github.saphyra.authservice.login.path:/login}", consumes = MediaType.APPLICATION_JSON_VALUE)
     void loginByRest(@RequestBody @Valid LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("Login request arrived to REST.");
+        log.debug("LoginRequest: {}", loginRequest);
         try {
             login(loginRequest, response);
         } catch (UnauthorizedException ex) {
+            log.warn("Login failed: {}", ex.getMessage());
             AuthContext authContext = getAuthContext(request);
             filterHelper.handleAccessDenied(request, response, authContext);
         }
@@ -49,16 +51,18 @@ class AuthController {
     @PostMapping(value = "${com.github.saphyra.authservice.login.path:/login}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     void loginByForm(@Valid LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("Login request arrived to FORM.");
+        log.debug("LoginRequest: {}", loginRequest);
         try {
             login(loginRequest, response);
             response.sendRedirect(propertyConfiguration.getSuccessfulLoginRedirection());
         } catch (UnauthorizedException ex) {
+            log.warn("Login failed: {}", ex.getMessage());
             AuthContext authContext = getAuthContext(request);
             filterHelper.handleAccessDenied(request, response, authContext);
         }
     }
 
-    private void login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
+    private void login(LoginRequest loginRequest, HttpServletResponse response) {
         AccessToken accessToken = authService.login(loginRequest.getUserName(), loginRequest.getPassword(), loginRequest.getRememberMe());
         int expiration = accessToken.isPersistent() ? Integer.MAX_VALUE : -1;
         cookieUtil.setCookie(response, propertyConfiguration.getUserIdCookie(), accessToken.getUserId(), expiration);

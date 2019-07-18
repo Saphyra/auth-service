@@ -18,12 +18,15 @@ public class MockMvcWrapper {
     private final ObjectMapperWrapper objectMapperWrapper;
 
     public MockHttpServletResponse postRequest(String uri, boolean isRest, Object requestBody) throws Exception {
-        MockHttpServletRequestBuilder request = post(uri)
-            .content(objectMapperWrapper.writeValueAsString(requestBody));
+        MockHttpServletRequestBuilder request = post(uri);
 
         if (isRest) {
             request.header("RequestType", "rest")
+                .content(objectMapperWrapper.writeValueAsString(requestBody))
                 .contentType(MediaType.APPLICATION_JSON);
+        } else {
+            request.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .content(requestBody.toString());
         }
         return sendRequest(request);
     }

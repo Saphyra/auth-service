@@ -1,7 +1,9 @@
 package com.github.saphyra.authservice.impl;
 
-import com.github.saphyra.authservice.domain.AccessStatus;
-import com.github.saphyra.authservice.domain.AccessToken;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -9,9 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpMethod;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.github.saphyra.authservice.domain.AccessStatus;
+import com.github.saphyra.authservice.domain.AccessToken;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthServiceImplTest {
@@ -32,6 +33,9 @@ public class AuthServiceImplTest {
     @InjectMocks
     private AuthServiceImpl underTest;
 
+    @Mock
+    private AccessToken accessToken;
+
     @Test
     public void testCanAccessShouldCallServiceAndReturn(){
         //GIVEN
@@ -45,7 +49,6 @@ public class AuthServiceImplTest {
     @Test
     public void testLogin(){
         //GIVEN
-        AccessToken accessToken = AccessToken.builder().accessTokenId(ACCESS_TOKEN_ID).build();
         when(loginService.login(USER_NAME, PASSWORD, false)).thenReturn(accessToken);
         //WHEN
         assertEquals(accessToken, underTest.login(USER_NAME, PASSWORD, false));
