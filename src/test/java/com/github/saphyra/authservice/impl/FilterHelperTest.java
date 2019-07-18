@@ -2,7 +2,6 @@ package com.github.saphyra.authservice.impl;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,7 +9,6 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -19,15 +17,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 
 import com.github.saphyra.authservice.ErrorResponseResolver;
-import com.github.saphyra.authservice.configuration.PropertyConfiguration;
 import com.github.saphyra.authservice.domain.AuthContext;
 import com.github.saphyra.authservice.domain.RestErrorResponse;
 import com.github.saphyra.util.ObjectMapperWrapper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FilterHelperTest {
-    private static final String REQUEST_TYPE_HEADER = "header";
-    private static final String REST_TYPE_REQUEST = "rest";
     private static final String REDIRECTION_PATH = "redirection";
     private static final String RESPONSE_BODY = "response_body";
 
@@ -38,13 +33,13 @@ public class FilterHelperTest {
     private ObjectMapperWrapper objectMapperWrapper;
 
     @Mock
+    private RequestHelper requestHelper;
+
+    @Mock
     private HttpServletRequest request;
 
     @Mock
     private HttpServletResponse response;
-
-    @Mock
-    private PropertyConfiguration propertyConfiguration;
 
     @InjectMocks
     private FilterHelper underTest;
@@ -55,16 +50,10 @@ public class FilterHelperTest {
     @Mock
     private PrintWriter writer;
 
-    @Before
-    public void init() {
-        when(propertyConfiguration.getRequestTypeHeader()).thenReturn(REQUEST_TYPE_HEADER);
-        when(propertyConfiguration.getRestTypeValue()).thenReturn(REST_TYPE_REQUEST);
-    }
-
     @Test
     public void testHandleUnauthorizedShouldSendErrorWhenUnauthorizedRest() throws IOException {
         //GIVEN
-        when(request.getHeader(REQUEST_TYPE_HEADER)).thenReturn(REST_TYPE_REQUEST);
+        given(requestHelper.isRestCall(request)).willReturn(true);
 
         RestErrorResponse restErrorResponse = new RestErrorResponse(HttpStatus.BAD_REQUEST, RESPONSE_BODY);
         given(errorResponseResolver.getRestErrorResponse(authContext)).willReturn(restErrorResponse);
@@ -83,7 +72,7 @@ public class FilterHelperTest {
     @Test
     public void testHandleUnauthorizedShouldRedirectWhenUnauthorizedNotRest() throws IOException {
         //GIVEN
-        when(request.getHeader(REQUEST_TYPE_HEADER)).thenReturn(null);
+        given(requestHelper.isRestCall(request)).willReturn(false);
         given(errorResponseResolver.getRedirectionPath(authContext)).willReturn(REDIRECTION_PATH);
         //WHEN
         underTest.handleAccessDenied(request, response, authContext);

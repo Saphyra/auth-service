@@ -1,7 +1,5 @@
 package com.github.saphyra.authservice.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -20,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -71,8 +68,17 @@ public class AuthFilterTest {
     @Mock
     private CookieUtil cookieUtil;
 
+    @Mock
+    private AuthContextFactory authContextFactory;
+
+    @Mock
+    private RequestHelper requestHelper;
+
     @InjectMocks
     private AuthFilter underTest;
+
+    @Mock
+    private AuthContext authContext;
 
     @Before
     public void init() {
@@ -81,7 +87,7 @@ public class AuthFilterTest {
         when(propertyConfiguration.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
 
         when(request.getRequestURI()).thenReturn(PROTECTED_URI);
-        when(request.getMethod()).thenReturn(HttpMethod.POST.name());
+        given(requestHelper.getMethod(request)).willReturn(HttpMethod.POST);
 
         when(antPathMatcher.match(ALLOWED_URI, ALLOWED_URI)).thenReturn(true);
 
@@ -103,7 +109,7 @@ public class AuthFilterTest {
     public void testAllowedPathShouldCallFacadeWhenNotAllowedPath() throws ServletException, IOException {
         //GIVEN
         when(request.getRequestURI()).thenReturn(ALLOWED_URI);
-        when(request.getMethod()).thenReturn(HttpMethod.GET.name());
+        when(requestHelper.getMethod(request)).thenReturn(HttpMethod.GET);
 
         given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
@@ -116,18 +122,15 @@ public class AuthFilterTest {
 
     @Test
     public void testAuthenticationShouldNotCallFacadeWhenCookieNotFound() throws ServletException, IOException {
+        //GIVEN
+        given(authContextFactory.create(request, AccessStatus.UNAUTHORIZED)).willReturn(authContext);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
         verifyNoMoreInteractions(authService);
         verifyNoMoreInteractions(filterChain);
-        ArgumentCaptor<AuthContext> argumentCaptor = ArgumentCaptor.forClass(AuthContext.class);
-        verify(filterHelper).handleAccessDenied(eq(request), eq(response), argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getRequestUri()).isEqualTo(PROTECTED_URI);
-        assertThat(argumentCaptor.getValue().getRequestMethod()).isEqualTo(HttpMethod.POST);
-        assertThat(argumentCaptor.getValue().getAccessTokenId()).isEmpty();
-        assertThat(argumentCaptor.getValue().getUserId()).isEmpty();
-        assertThat(argumentCaptor.getValue().getAccessStatus()).isEqualTo(AccessStatus.UNAUTHORIZED);
+
+        verify(filterHelper).handleAccessDenied(request, response, authContext);
     }
 
     @Test
@@ -149,18 +152,15 @@ public class AuthFilterTest {
         given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
         when(authService.canAccess(PROTECTED_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID)).thenReturn(AccessStatus.FORBIDDEN);
+
+        //GIVEN
+        given(authContextFactory.create(request, AccessStatus.FORBIDDEN)).willReturn(authContext);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN
         verify(authService).canAccess(PROTECTED_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID);
 
-        ArgumentCaptor<AuthContext> argumentCaptor = ArgumentCaptor.forClass(AuthContext.class);
-        verify(filterHelper).handleAccessDenied(eq(request), eq(response), argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getRequestUri()).isEqualTo(PROTECTED_URI);
-        assertThat(argumentCaptor.getValue().getRequestMethod()).isEqualTo(HttpMethod.POST);
-        assertThat(argumentCaptor.getValue().getAccessTokenId()).contains(ACCESS_TOKEN_ID);
-        assertThat(argumentCaptor.getValue().getUserId()).contains(USER_ID);
-        assertThat(argumentCaptor.getValue().getAccessStatus()).isEqualTo(AccessStatus.FORBIDDEN);
+        verify(filterHelper).handleAccessDenied(request, response, authContext);
         verifyNoMoreInteractions(filterChain);
     }
 }

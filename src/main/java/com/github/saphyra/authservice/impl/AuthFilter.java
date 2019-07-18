@@ -32,18 +32,20 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AuthFilter extends OncePerRequestFilter {
     private final Set<AllowedUri> allowedUris = new HashSet<>();
+    private final AuthContextFactory authContextFactory;
     private final AuthService authService;
     private final CookieUtil cookieUtil;
     private final FilterHelper filterHelper;
     private final AntPathMatcher pathMatcher;
     private final PropertyConfiguration propertyConfiguration;
+    private final RequestHelper requestHelper;
     private final UriConfiguration uriConfiguration;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.debug("AuthFilter");
         String path = request.getRequestURI();
-        HttpMethod method = HttpMethod.resolve(request.getMethod());
+        HttpMethod method = requestHelper.getMethod(request);
         log.debug("Request arrived: {}", path);
         if (isAllowedPath(path, method)) {
             log.debug("Allowed path: {}", path);
@@ -51,18 +53,12 @@ public class AuthFilter extends OncePerRequestFilter {
         } else {
             Optional<String> accessTokenId = cookieUtil.getCookie(request, propertyConfiguration.getAccessTokenIdCookie());
             Optional<String> userId = cookieUtil.getCookie(request, propertyConfiguration.getUserIdCookie());
-            AccessStatus accessStatus = getAccessStatus(request, accessTokenId, userId);
+            AccessStatus accessStatus = getAccessStatus(path, method, accessTokenId, userId);
             if (accessStatus == AccessStatus.GRANTED) {
                 log.debug("Access granted.: {}", path);
                 filterChain.doFilter(request, response);
             } else {
-                AuthContext authContext = AuthContext.builder()
-                    .requestUri(path)
-                    .requestMethod(method)
-                    .accessTokenId(accessTokenId)
-                    .userId(userId)
-                    .accessStatus(accessStatus)
-                    .build();
+                AuthContext authContext = authContextFactory.create(request, accessStatus);
                 filterHelper.handleAccessDenied(request, response, authContext);
             }
         }
@@ -74,7 +70,7 @@ public class AuthFilter extends OncePerRequestFilter {
             .anyMatch(allowedUri -> allowedUri.getAllowedMethods().contains(method));
     }
 
-    private AccessStatus getAccessStatus(HttpServletRequest request, Optional<String> accessTokenId, Optional<String> userIdValue) {
+    private AccessStatus getAccessStatus(String requestUri, HttpMethod requestMethod, Optional<String> accessTokenId, Optional<String> userIdValue) {
         log.debug("Authenticating...");
         if (!accessTokenId.isPresent() || !userIdValue.isPresent()) {
             log.warn("Cookies not found.");
@@ -82,8 +78,8 @@ public class AuthFilter extends OncePerRequestFilter {
         }
 
         return authService.canAccess(
-            request.getRequestURI(),
-            HttpMethod.resolve(request.getMethod()),
+            requestUri,
+            requestMethod,
             userIdValue.get(),
             accessTokenId.get()
         );

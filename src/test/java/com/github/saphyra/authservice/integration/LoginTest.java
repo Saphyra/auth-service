@@ -21,11 +21,6 @@ public class LoginTest {
     }
 
     @Test
-    public void loginByForm_successful() {
-
-    }
-
-    @Test
     public void loginByForm_unauthorized() {
 
     }

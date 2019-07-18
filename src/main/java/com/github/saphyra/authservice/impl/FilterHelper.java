@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 
 import com.github.saphyra.authservice.ErrorResponseResolver;
-import com.github.saphyra.authservice.configuration.PropertyConfiguration;
 import com.github.saphyra.authservice.domain.AuthContext;
 import com.github.saphyra.authservice.domain.RestErrorResponse;
 import com.github.saphyra.util.ObjectMapperWrapper;
@@ -22,10 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 class FilterHelper {
     private final ErrorResponseResolver errorResponseResolver;
     private final ObjectMapperWrapper objectMapperWrapper;
-    private final PropertyConfiguration propertyConfiguration;
+    private final RequestHelper requestHelper;
 
     void handleAccessDenied(HttpServletRequest request, HttpServletResponse response, AuthContext authContext) throws IOException {
-        if (propertyConfiguration.getRestTypeValue().equals(request.getHeader(propertyConfiguration.getRequestTypeHeader()))) {
+        if (requestHelper.isRestCall(request)) {
             log.info("Sending error. Cause: Access denied. AccessStatus: {}", authContext.getAccessStatus());
             RestErrorResponse errorResponse = errorResponseResolver.getRestErrorResponse(authContext);
             response.setStatus(errorResponse.getHttpStatus().value());

@@ -1,7 +1,5 @@
 package com.github.saphyra.authservice.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -17,12 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.HttpMethod;
 
 import com.github.saphyra.authservice.AuthService;
 import com.github.saphyra.authservice.configuration.PropertyConfiguration;
@@ -43,7 +38,9 @@ public class AuthControllerTest {
     private static final String COOKIE_USER_ID = "cookie_user_id";
     private static final String LOGIN_REDIRECTION = "login_redirection";
     private static final String LOGOUT_REDIRECTION = "logout_redirection";
-    private static final String REQUEST_URI = "request_uri";
+
+    @Mock
+    private AuthContextFactory authContextFactory;
 
     @Mock
     private AuthService authService;
@@ -66,8 +63,8 @@ public class AuthControllerTest {
     @InjectMocks
     private AuthController underTest;
 
-    @Captor
-    private ArgumentCaptor<AuthContext> argumentCaptor;
+    @Mock
+    private AuthContext authContext;
 
     @Before
     public void init() {
@@ -76,11 +73,10 @@ public class AuthControllerTest {
         when(propertyConfiguration.getSuccessfulLoginRedirection()).thenReturn(LOGIN_REDIRECTION);
         when(propertyConfiguration.getLogoutRedirection()).thenReturn(LOGOUT_REDIRECTION);
 
-        given(request.getRequestURI()).willReturn(REQUEST_URI);
-        given(request.getMethod()).willReturn(HttpMethod.POST.name());
-
         given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
+
+        given(authContextFactory.create(request, AccessStatus.UNAUTHORIZED)).willReturn(authContext);
     }
 
     @Test
@@ -106,8 +102,7 @@ public class AuthControllerTest {
         //WHEN
         underTest.loginByRest(loginRequest, request, response);
         //THEN
-        verify(filterHelper).handleAccessDenied(eq(request), eq(response), argumentCaptor.capture());
-        verifyAuthContext();
+        verify(filterHelper).handleAccessDenied(request, response, authContext);
     }
 
     @Test
@@ -135,8 +130,7 @@ public class AuthControllerTest {
         //WHEN
         underTest.loginByForm(loginRequest, request, response);
         //THEN
-        verify(filterHelper).handleAccessDenied(eq(request), eq(response), argumentCaptor.capture());
-        verifyAuthContext();
+        verify(filterHelper).handleAccessDenied(request, response, authContext);
     }
 
     @Test
@@ -162,14 +156,5 @@ public class AuthControllerTest {
         //THEN
         verify(authService).logout(USER_ID, ACCESS_TOKEN_ID);
         verifyZeroInteractions(response);
-    }
-
-    private void verifyAuthContext() {
-        AuthContext authContext = argumentCaptor.getValue();
-        assertThat(authContext.getRequestUri()).isEqualTo(REQUEST_URI);
-        assertThat(authContext.getRequestMethod()).isEqualTo(HttpMethod.POST);
-        assertThat(authContext.getAccessTokenId()).contains(ACCESS_TOKEN_ID);
-        assertThat(authContext.getUserId()).contains(USER_ID);
-        assertThat(authContext.getAccessStatus()).isEqualTo(AccessStatus.UNAUTHORIZED);
     }
 }

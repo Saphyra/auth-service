@@ -13,6 +13,9 @@ import lombok.Getter;
 @Component
 @Getter
 public class PropertyConfiguration {
+    public static final String LOGIN_ENDPOINT = "${com.github.saphyra.authservice.login.path:/login}";
+    public static final String LOGOUT_ENDPOINT = "${com.github.saphyra.authservice.login.path:/logout}";
+
     @Value("${com.github.saphyra.authservice.filter.order:1}")
     private Integer filterOrder;
 
@@ -40,10 +43,10 @@ public class PropertyConfiguration {
     @Value("${com.github.saphyra.authservice.login.multiple-login-allowed}")
     private boolean multipleLoginAllowed;
 
-    @Value("${com.github.saphyra.authservice.login.path:/login}")
+    @Value(LOGIN_ENDPOINT)
     private String loginPath;
 
-    @Value("${com.github.saphyra.authservice.login.path:/logout}")
+    @Value(LOGOUT_ENDPOINT)
     private String logoutPath;
 
     public List<AllowedUri> getDefaultAllowedUris() {

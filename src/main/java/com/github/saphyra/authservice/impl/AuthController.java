@@ -1,5 +1,8 @@
 package com.github.saphyra.authservice.impl;
 
+import static com.github.saphyra.authservice.configuration.PropertyConfiguration.LOGIN_ENDPOINT;
+import static com.github.saphyra.authservice.configuration.PropertyConfiguration.LOGOUT_ENDPOINT;
+
 import java.io.IOException;
 import java.util.Optional;
 
@@ -7,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,12 +31,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 class AuthController {
+    private final AuthContextFactory authContextFactory;
     private final AuthService authService;
     private final CookieUtil cookieUtil;
     private final PropertyConfiguration propertyConfiguration;
     private final FilterHelper filterHelper;
 
-    @PostMapping(value = "${com.github.saphyra.authservice.login.path:/login}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = LOGIN_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
     void loginByRest(@RequestBody @Valid LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("Login request arrived to REST.");
         log.debug("LoginRequest: {}", loginRequest);
@@ -45,10 +48,9 @@ class AuthController {
             AuthContext authContext = getAuthContext(request);
             filterHelper.handleAccessDenied(request, response, authContext);
         }
-
     }
 
-    @PostMapping(value = "${com.github.saphyra.authservice.login.path:/login}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(value = LOGIN_ENDPOINT, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     void loginByForm(@Valid LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("Login request arrived to FORM.");
         log.debug("LoginRequest: {}", loginRequest);
@@ -71,16 +73,10 @@ class AuthController {
     }
 
     private AuthContext getAuthContext(HttpServletRequest request) {
-        return AuthContext.builder()
-            .requestUri(request.getRequestURI())
-            .requestMethod(HttpMethod.resolve(request.getMethod()))
-            .accessTokenId(cookieUtil.getCookie(request, propertyConfiguration.getAccessTokenIdCookie()))
-            .userId(cookieUtil.getCookie(request, propertyConfiguration.getUserIdCookie()))
-            .accessStatus(AccessStatus.UNAUTHORIZED)
-            .build();
+        return authContextFactory.create(request, AccessStatus.UNAUTHORIZED);
     }
 
-    @RequestMapping("${com.github.saphyra.authservice.logout.path:/logout}")
+    @RequestMapping(LOGOUT_ENDPOINT)
     void logout(HttpServletRequest request, HttpServletResponse response) {
         log.info("Logout request arrived.");
         Optional<String> userId = cookieUtil.getCookie(request, propertyConfiguration.getUserIdCookie());
