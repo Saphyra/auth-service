@@ -1,16 +1,20 @@
 package com.github.saphyra.authservice.domain;
 
-import lombok.Data;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpMethod;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.http.HttpMethod;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
 @Data
 @Slf4j
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class RoleSetting {
     @NonNull
     private final String uri;

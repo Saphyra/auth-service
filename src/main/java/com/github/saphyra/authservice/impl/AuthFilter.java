@@ -43,7 +43,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.debug("AuthFilter");
+        log.debug("Filtering...");
         String path = request.getRequestURI();
         HttpMethod method = requestHelper.getMethod(request);
         log.debug("Request arrived: {}", path);

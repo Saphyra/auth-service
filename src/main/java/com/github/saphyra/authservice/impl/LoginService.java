@@ -34,6 +34,7 @@ class LoginService {
         }
 
         if (!propertyConfiguration.isMultipleLoginAllowed()) {
+            log.debug("Multiple login is not allowed. Deleting accessTokens for user {}", user.getUserId());
             authDao.deleteAccessTokenByUserId(user.getUserId());
         }
 
@@ -43,6 +44,7 @@ class LoginService {
             .lastAccess(offsetDateTimeProvider.getCurrentDate())
             .isPersistent(Optional.ofNullable(rememberMe).orElse(false))
             .build();
+        log.debug("AccessToken created: {}", accessToken);
 
         authDao.saveAccessToken(accessToken);
         authDao.successfulLoginCallback(accessToken);

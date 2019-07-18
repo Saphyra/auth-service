@@ -41,9 +41,9 @@ public interface UriConfiguration {
      * roles: [ADMIN]
      * <p>
      * Example: Endpoints start with "user/" with all methods can be access with role "USER" and "ADMIN", but "VISITOR" cannot.
-     * * uri: user/**
+     * uri: user/**
      * protectedMethods [HttpMethod.values()]
-     * * protectedMethods: [ADMIN, USER]
+     * roles: [ADMIN, USER]
      *
      * @return Map of URI patterns and Necessary Role(s) to access them.
      */
