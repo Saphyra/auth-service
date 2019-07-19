@@ -1,6 +1,6 @@
 package com.github.saphyra.authservice.integration.domain;
 
-import com.github.saphyra.authservice.domain.LoginRequest;
+import com.github.saphyra.authservice.auth.domain.LoginRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

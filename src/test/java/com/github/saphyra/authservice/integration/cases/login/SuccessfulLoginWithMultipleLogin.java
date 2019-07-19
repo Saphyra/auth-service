@@ -22,12 +22,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.github.saphyra.authservice.AuthDao;
-import com.github.saphyra.authservice.configuration.PropertyConfiguration;
-import com.github.saphyra.authservice.domain.AccessToken;
-import com.github.saphyra.authservice.domain.Credentials;
-import com.github.saphyra.authservice.domain.LoginRequest;
-import com.github.saphyra.authservice.domain.User;
+import com.github.saphyra.authservice.auth.AuthDao;
+import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.auth.domain.AccessToken;
+import com.github.saphyra.authservice.auth.domain.Credentials;
+import com.github.saphyra.authservice.auth.domain.LoginRequest;
+import com.github.saphyra.authservice.auth.domain.User;
 import com.github.saphyra.authservice.integration.component.MockMvcWrapper;
 import com.github.saphyra.authservice.integration.component.ResponseValidator;
 import com.github.saphyra.authservice.integration.configuration.MvcConfiguration;

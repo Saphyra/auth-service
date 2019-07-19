@@ -5,13 +5,15 @@ import org.junit.Test;
 public class FilterTest {
 
     @Test
-    public void accessAllowedUri_AllowedMethod_byRest() {
+    public void accessAllowedUri_allowedMethod_byRest() {
 
     }
 
     @Test
     public void accessProtectedPath_notLoggedIn_byRest() {
-
+        //No cookie
+        //AccessToken not found
+        //AccessToken expired
     }
 
     @Test
@@ -20,22 +22,7 @@ public class FilterTest {
     }
 
     @Test
-    public void accessAllowedUri_AllowedMethod_byForm() {
-
-    }
-
-    @Test
-    public void accessProtectedPath_notLoggedIn_byForm() {
-
-    }
-
-    @Test
-    public void accessProtectedPath_noPermission_byForm() {
-
-    }
-
-    @Test
-    public void accessProtectedPath_hasPermission() {
+    public void accessGranted() {
 
     }
 }

@@ -7,20 +7,21 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.util.AntPathMatcher;
 
-import com.github.saphyra.authservice.AuthDao;
-import com.github.saphyra.authservice.ErrorResponseResolver;
-import com.github.saphyra.authservice.UriConfiguration;
+import com.github.saphyra.authservice.auth.AuthDao;
+import com.github.saphyra.authservice.auth.EnableAuthService;
+import com.github.saphyra.authservice.auth.ErrorResponseResolver;
+import com.github.saphyra.authservice.auth.UriConfiguration;
 import com.github.saphyra.exceptionhandling.EnableExceptionHandler;
 import com.github.saphyra.util.IdGenerator;
 import com.github.saphyra.util.OffsetDateTimeProvider;
 
 @TestConfiguration
 @ComponentScan(basePackages = {
-    "com.github.saphyra.authservice",
     "com.github.saphyra.util"
 })
 @TestPropertySource(locations = "classpath:application.properties")
 @EnableExceptionHandler
+@EnableAuthService
 public class MvcConfiguration {
     @MockBean
     private AuthDao authDao;
