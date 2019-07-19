@@ -49,11 +49,12 @@ public class AuthFilter extends OncePerRequestFilter {
         log.debug("Filtering...");
         String path = request.getRequestURI();
         HttpMethod method = requestHelper.getMethod(request);
-        log.debug("Request arrived: {}", path);
+        log.debug("Request arrived: {} - {}", path, method);
         if (isAllowedPath(path, method)) {
             log.debug("Allowed path: {}", path);
             filterChain.doFilter(request, response);
         } else {
+            log.debug("Protected path: {}", path);
             Optional<String> accessTokenId = cookieUtil.getCookie(request, commonPropertyConfiguration.getAccessTokenIdCookie());
             Optional<String> userId = cookieUtil.getCookie(request, commonPropertyConfiguration.getUserIdCookie());
             AccessStatus accessStatus = getAccessStatus(path, method, accessTokenId, userId);
@@ -92,5 +93,6 @@ public class AuthFilter extends OncePerRequestFilter {
     void mapAllowedUris() {
         allowedUris.addAll(authPropertyConfiguration.getDefaultAllowedUris());
         allowedUris.addAll(uriConfiguration.getAllowedUris());
+        log.debug("AllowedUris: {}", allowedUris);
     }
 }

@@ -7,9 +7,13 @@ import java.util.Set;
 
 import org.springframework.http.HttpMethod;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
+@EqualsAndHashCode
 public class AllowedUri {
     private final String uri;
     private final Set<HttpMethod> allowedMethods = new HashSet<>();

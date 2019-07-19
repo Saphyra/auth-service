@@ -30,12 +30,11 @@ import com.github.saphyra.authservice.auth.domain.Credentials;
 import com.github.saphyra.authservice.auth.domain.LoginRequest;
 import com.github.saphyra.authservice.auth.domain.RestErrorResponse;
 import com.github.saphyra.authservice.auth.domain.User;
+import com.github.saphyra.exceptionhandling.domain.ErrorResponse;
 import com.github.saphyra.integration.component.MockMvcWrapper;
 import com.github.saphyra.integration.component.ResponseValidator;
 import com.github.saphyra.integration.configuration.AuthConfiguration;
-import com.github.saphyra.integration.configuration.MvcConfiguration;
 import com.github.saphyra.integration.domain.UrlEncodedLoginRequest;
-import com.github.saphyra.exceptionhandling.domain.ErrorResponse;
 import com.github.saphyra.util.ObjectMapperWrapper;
 
 @RunWith(SpringRunner.class)

@@ -2,6 +2,7 @@ package com.github.saphyra.integration.component;
 
 import static java.util.Objects.isNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 import java.util.Optional;
 
@@ -25,7 +26,17 @@ public class MockMvcWrapper {
     public MockHttpServletResponse postRequest(String uri, boolean isRest, Object requestBody, Cookie... cookies) throws Exception {
         MockHttpServletRequestBuilder request = post(uri);
 
-        if(!isNull(cookies) && cookies.length > 0){
+        return sendRequest(request, isRest, requestBody, cookies);
+    }
+
+    public MockHttpServletResponse putRequest(String uri, boolean isRest, Object requestBody, Cookie... cookies) throws Exception {
+        MockHttpServletRequestBuilder request = put(uri);
+
+        return sendRequest(request, isRest, requestBody, cookies);
+    }
+
+    private MockHttpServletResponse sendRequest(MockHttpServletRequestBuilder request, boolean isRest, Object requestBody, Cookie[] cookies) throws Exception {
+        if (!isNull(cookies) && cookies.length > 0) {
             request.cookie(cookies);
         }
 
