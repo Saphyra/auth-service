@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.util.AntPathMatcher;
 
-import com.github.saphyra.authservice.auth.EnableAuthService;
+import com.github.saphyra.authservice.redirection.EnableRedirection;
 import com.github.saphyra.exceptionhandling.EnableExceptionHandler;
 import com.github.saphyra.util.IdGenerator;
 import com.github.saphyra.util.OffsetDateTimeProvider;
@@ -18,7 +18,7 @@ import com.github.saphyra.util.OffsetDateTimeProvider;
 })
 @TestPropertySource(locations = "classpath:application.properties")
 @EnableExceptionHandler
-@EnableAuthService
+@EnableRedirection
 public class MvcConfiguration {
     @Bean
     public AntPathMatcher antPathMatcher() {
