@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.integration;
+package com.github.saphyra.integration.cases.auth;
 
 import org.junit.Test;
 

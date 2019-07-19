@@ -19,10 +19,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.github.saphyra.authservice.auth.AuthService;
 import com.github.saphyra.authservice.auth.UriConfiguration;
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AllowedUri;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
+import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.RequestHelper;
 import com.github.saphyra.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +39,8 @@ public class AuthFilter extends OncePerRequestFilter {
     private final CookieUtil cookieUtil;
     private final FilterHelper filterHelper;
     private final AntPathMatcher pathMatcher;
-    private final PropertyConfiguration propertyConfiguration;
+    private final AuthPropertyConfiguration authPropertyConfiguration;
+    private final CommonPropertyConfiguration commonPropertyConfiguration;
     private final RequestHelper requestHelper;
     private final UriConfiguration uriConfiguration;
 
@@ -51,8 +54,8 @@ public class AuthFilter extends OncePerRequestFilter {
             log.debug("Allowed path: {}", path);
             filterChain.doFilter(request, response);
         } else {
-            Optional<String> accessTokenId = cookieUtil.getCookie(request, propertyConfiguration.getAccessTokenIdCookie());
-            Optional<String> userId = cookieUtil.getCookie(request, propertyConfiguration.getUserIdCookie());
+            Optional<String> accessTokenId = cookieUtil.getCookie(request, commonPropertyConfiguration.getAccessTokenIdCookie());
+            Optional<String> userId = cookieUtil.getCookie(request, commonPropertyConfiguration.getUserIdCookie());
             AccessStatus accessStatus = getAccessStatus(path, method, accessTokenId, userId);
             if (accessStatus == AccessStatus.GRANTED) {
                 log.debug("Access granted.: {}", path);
@@ -87,7 +90,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
     @PostConstruct
     void mapAllowedUris() {
-        allowedUris.addAll(propertyConfiguration.getDefaultAllowedUris());
+        allowedUris.addAll(authPropertyConfiguration.getDefaultAllowedUris());
         allowedUris.addAll(uriConfiguration.getAllowedUris());
     }
 }

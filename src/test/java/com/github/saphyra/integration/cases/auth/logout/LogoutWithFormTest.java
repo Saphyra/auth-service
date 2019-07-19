@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.integration.cases.logout;
+package com.github.saphyra.integration.cases.auth.logout;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,18 +25,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.saphyra.authservice.auth.AuthDao;
 import com.github.saphyra.authservice.auth.ErrorResponseResolver;
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
-import com.github.saphyra.authservice.integration.component.MockMvcWrapper;
-import com.github.saphyra.authservice.integration.component.ResponseValidator;
-import com.github.saphyra.authservice.integration.configuration.MvcConfiguration;
+import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.integration.component.MockMvcWrapper;
+import com.github.saphyra.integration.component.ResponseValidator;
+import com.github.saphyra.integration.configuration.AuthConfiguration;
+import com.github.saphyra.integration.configuration.MvcConfiguration;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
 @AutoConfigureMockMvc(secure = false)
-@ContextConfiguration(classes = {MvcConfiguration.class, LogoutWithFormTest.class})
+@ContextConfiguration(classes = {AuthConfiguration.class, LogoutWithFormTest.class})
 @ActiveProfiles("logout_redirection")
 public class LogoutWithFormTest {
     private static final String ACCESS_TOKEN_ID = "access_token_id";
@@ -52,7 +54,10 @@ public class LogoutWithFormTest {
     private AuthDao authDao;
 
     @Autowired
-    private PropertyConfiguration propertyConfiguration;
+    private CommonPropertyConfiguration commonPropertyConfiguration;
+
+    @Autowired
+    private AuthPropertyConfiguration authPropertyConfiguration;
 
     @Autowired
     private ErrorResponseResolver errorResponseResolver;
@@ -71,14 +76,14 @@ public class LogoutWithFormTest {
     @Test
     public void logout() throws Exception {
         //GIVEN
-        Cookie accessTokenCookie = createCookie(propertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
-        Cookie userIdCookie = createCookie(propertyConfiguration.getUserIdCookie(), USER_ID);
+        Cookie accessTokenCookie = createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
+        Cookie userIdCookie = createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID);
 
         given(authDao.findAccessTokenByTokenId(ACCESS_TOKEN_ID)).willReturn(Optional.of(accessToken));
         //WHEN
         MockHttpServletResponse response = mockMvcWrapper.postRequest("/logout", false, null, accessTokenCookie, userIdCookie);
         //THEN
-        responseValidator.verifyRedirection(response, propertyConfiguration.getLogoutRedirection());
+        responseValidator.verifyRedirection(response, authPropertyConfiguration.getLogoutRedirection());
         verify(authDao).deleteAccessToken(accessToken);
         verify(authDao).successfulLogoutCallback(accessToken);
     }
@@ -87,14 +92,14 @@ public class LogoutWithFormTest {
     public void logoutWhenNotLoggedIn() throws Exception {
         MockHttpServletResponse response = mockMvcWrapper.postRequest("/logout", false, null);
         //THEN
-        responseValidator.verifyRedirection(response, propertyConfiguration.getLogoutRedirection());
+        responseValidator.verifyRedirection(response, authPropertyConfiguration.getLogoutRedirection());
     }
 
     @Test
     public void logoutWithForbidden() throws Exception {
         //GIVEN
-        Cookie accessTokenCookie = createCookie(propertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
-        Cookie userIdCookie = createCookie(propertyConfiguration.getUserIdCookie(), FAKE_USER_ID);
+        Cookie accessTokenCookie = createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
+        Cookie userIdCookie = createCookie(commonPropertyConfiguration.getUserIdCookie(), FAKE_USER_ID);
 
         given(authDao.findAccessTokenByTokenId(ACCESS_TOKEN_ID)).willReturn(Optional.of(accessToken));
 

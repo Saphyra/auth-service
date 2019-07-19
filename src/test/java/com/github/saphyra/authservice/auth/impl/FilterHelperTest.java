@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import com.github.saphyra.authservice.auth.ErrorResponseResolver;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
 import com.github.saphyra.authservice.auth.domain.RestErrorResponse;
+import com.github.saphyra.authservice.common.RequestHelper;
 import com.github.saphyra.util.ObjectMapperWrapper;
 
 @RunWith(MockitoJUnitRunner.class)

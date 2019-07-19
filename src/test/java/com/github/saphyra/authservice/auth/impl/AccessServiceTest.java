@@ -2,7 +2,7 @@ package com.github.saphyra.authservice.auth.impl;
 
 import com.github.saphyra.authservice.auth.AuthDao;
 import com.github.saphyra.authservice.auth.UriConfiguration;
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.AllowedUri;
@@ -56,7 +56,7 @@ public class AccessServiceTest {
     private UriConfiguration uriConfiguration;
 
     @Mock
-    private PropertyConfiguration propertyConfiguration;
+    private AuthPropertyConfiguration authPropertyConfiguration;
 
     private AccessToken accessToken;
 
@@ -76,7 +76,7 @@ public class AccessServiceTest {
 
         when(accessTokenCache.get(ACCESS_TOKEN_ID)).thenReturn(Optional.of(accessToken));
         when(offsetDateTimeProvider.getCurrentDate()).thenReturn(CURRENT_DATE);
-        when(propertyConfiguration.getExpirationSeconds()).thenReturn(EXPIRATION_SECONDS);
+        when(authPropertyConfiguration.getExpirationSeconds()).thenReturn(EXPIRATION_SECONDS);
 
         user = User.builder()
             .userId(USER_ID)

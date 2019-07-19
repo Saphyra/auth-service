@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.integration.cases.login;
+package com.github.saphyra.integration.cases.auth.login;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,17 +30,18 @@ import com.github.saphyra.authservice.auth.domain.Credentials;
 import com.github.saphyra.authservice.auth.domain.LoginRequest;
 import com.github.saphyra.authservice.auth.domain.RestErrorResponse;
 import com.github.saphyra.authservice.auth.domain.User;
-import com.github.saphyra.authservice.integration.component.MockMvcWrapper;
-import com.github.saphyra.authservice.integration.component.ResponseValidator;
-import com.github.saphyra.authservice.integration.configuration.MvcConfiguration;
-import com.github.saphyra.authservice.integration.domain.UrlEncodedLoginRequest;
+import com.github.saphyra.integration.component.MockMvcWrapper;
+import com.github.saphyra.integration.component.ResponseValidator;
+import com.github.saphyra.integration.configuration.AuthConfiguration;
+import com.github.saphyra.integration.configuration.MvcConfiguration;
+import com.github.saphyra.integration.domain.UrlEncodedLoginRequest;
 import com.github.saphyra.exceptionhandling.domain.ErrorResponse;
 import com.github.saphyra.util.ObjectMapperWrapper;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
 @AutoConfigureMockMvc(secure = false)
-@ContextConfiguration(classes = {MvcConfiguration.class, FailedLoginTest.class})
+@ContextConfiguration(classes = {AuthConfiguration.class, FailedLoginTest.class})
 public class FailedLoginTest {
     private static final String USERNAME = "username";
     private static final String PASSWORD = "password";

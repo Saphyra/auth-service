@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.integration.cases.logout;
+package com.github.saphyra.integration.cases.auth.logout;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,20 +26,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.saphyra.authservice.auth.AuthDao;
 import com.github.saphyra.authservice.auth.ErrorResponseResolver;
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
 import com.github.saphyra.authservice.auth.domain.RestErrorResponse;
-import com.github.saphyra.authservice.integration.component.MockMvcWrapper;
-import com.github.saphyra.authservice.integration.configuration.MvcConfiguration;
+import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
 import com.github.saphyra.exceptionhandling.domain.ErrorResponse;
+import com.github.saphyra.integration.component.MockMvcWrapper;
+import com.github.saphyra.integration.configuration.AuthConfiguration;
 import com.github.saphyra.util.ObjectMapperWrapper;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
 @AutoConfigureMockMvc(secure = false)
-@ContextConfiguration(classes = {MvcConfiguration.class, LogoutWithRestTest.class})
+@ContextConfiguration(classes = {AuthConfiguration.class, LogoutWithRestTest.class})
 public class LogoutWithRestTest {
     private static final String ACCESS_TOKEN_ID = "access_token_id";
     private static final String USER_ID = "user_id";
@@ -53,7 +53,7 @@ public class LogoutWithRestTest {
     private AuthDao authDao;
 
     @Autowired
-    private PropertyConfiguration propertyConfiguration;
+    private CommonPropertyConfiguration commonPropertyConfiguration;
 
     @Autowired
     private ErrorResponseResolver errorResponseResolver;
@@ -72,8 +72,8 @@ public class LogoutWithRestTest {
     @Test
     public void logout() throws Exception {
         //GIVEN
-        Cookie accessTokenCookie = createCookie(propertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
-        Cookie userIdCookie = createCookie(propertyConfiguration.getUserIdCookie(), USER_ID);
+        Cookie accessTokenCookie = createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
+        Cookie userIdCookie = createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID);
 
         given(authDao.findAccessTokenByTokenId(ACCESS_TOKEN_ID)).willReturn(Optional.of(accessToken));
         //WHEN
@@ -94,8 +94,8 @@ public class LogoutWithRestTest {
     @Test
     public void logoutWithForbidden() throws Exception {
         //GIVEN
-        Cookie accessTokenCookie = createCookie(propertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
-        Cookie userIdCookie = createCookie(propertyConfiguration.getUserIdCookie(), FAKE_USER_ID);
+        Cookie accessTokenCookie = createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
+        Cookie userIdCookie = createCookie(commonPropertyConfiguration.getUserIdCookie(), FAKE_USER_ID);
 
         given(authDao.findAccessTokenByTokenId(ACCESS_TOKEN_ID)).willReturn(Optional.of(accessToken));
 

@@ -14,9 +14,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpMethod;
 
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
+import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.RequestHelper;
 import com.github.saphyra.util.CookieUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,7 +32,7 @@ public class AuthContextFactoryTest {
     private CookieUtil cookieUtil;
 
     @Mock
-    private PropertyConfiguration propertyConfiguration;
+    private CommonPropertyConfiguration commonPropertyConfiguration;
 
     @Mock
     private RequestHelper requestHelper;
@@ -45,8 +46,8 @@ public class AuthContextFactoryTest {
     @Test
     public void create() {
         //GIVEN
-        given(propertyConfiguration.getAccessTokenIdCookie()).willReturn(COOKIE_ACCESS_TOKEN_ID);
-        given(propertyConfiguration.getUserIdCookie()).willReturn(COOKIE_USER_ID);
+        given(commonPropertyConfiguration.getAccessTokenIdCookie()).willReturn(COOKIE_ACCESS_TOKEN_ID);
+        given(commonPropertyConfiguration.getUserIdCookie()).willReturn(COOKIE_USER_ID);
 
         given(request.getRequestURI()).willReturn(REQUEST_URI);
         given(requestHelper.getMethod(request)).willReturn(HttpMethod.POST);

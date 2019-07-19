@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.github.saphyra.authservice.auth.AuthDao;
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.Credentials;
 import com.github.saphyra.authservice.auth.domain.User;
@@ -44,7 +44,7 @@ public class LoginServiceTest {
     private OffsetDateTimeProvider offsetDateTimeProvider;
 
     @Mock
-    private PropertyConfiguration propertyConfiguration;
+    private AuthPropertyConfiguration authPropertyConfiguration;
 
     @InjectMocks
     private LoginService underTest;
@@ -57,7 +57,7 @@ public class LoginServiceTest {
             .build();
         when(authDao.findUserByUserName(USER_NAME)).thenReturn(Optional.of(user));
         when(authDao.authenticate(PASSWORD, PASSWORD_TOKEN)).thenReturn(true);
-        when(propertyConfiguration.isMultipleLoginAllowed()).thenReturn(true);
+        when(authPropertyConfiguration.isMultipleLoginAllowed()).thenReturn(true);
 
         given(idGenerator.generateRandomId()).willReturn(ACCESS_TOKEN_ID);
         given(offsetDateTimeProvider.getCurrentDate()).willReturn(CURRENT_DATE);
@@ -82,7 +82,7 @@ public class LoginServiceTest {
     @Test
     public void testLoginShouldDeleteOthersWhenMultipleLoginNotAllowed(){
         //GIVEN
-        when(propertyConfiguration.isMultipleLoginAllowed()).thenReturn(false);
+        when(authPropertyConfiguration.isMultipleLoginAllowed()).thenReturn(false);
         //WHEN
         underTest.login(USER_NAME, PASSWORD, false);
         //THEN

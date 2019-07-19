@@ -2,7 +2,7 @@ package com.github.saphyra.authservice.auth.impl;
 
 import com.github.saphyra.authservice.auth.AuthDao;
 import com.github.saphyra.authservice.auth.UriConfiguration;
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.RoleSetting;
@@ -27,7 +27,7 @@ class AccessService {
     private final AuthDao authDao;
     private final OffsetDateTimeProvider offsetDateTimeProvider;
     private final UriConfiguration uriConfiguration;
-    private final PropertyConfiguration propertyConfiguration;
+    private final AuthPropertyConfiguration authPropertyConfiguration;
 
     AccessStatus canAccess(String requestUri, HttpMethod method, String userId, String accessTokenId) {
         Optional<AccessToken> accessTokenOptional = accessTokenCache.get(accessTokenId);
@@ -75,7 +75,7 @@ class AccessService {
         if (accessToken.isPersistent()) {
             return false;
         }
-        OffsetDateTime expiration = accessToken.getLastAccess().plusSeconds(propertyConfiguration.getExpirationSeconds());
+        OffsetDateTime expiration = accessToken.getLastAccess().plusSeconds(authPropertyConfiguration.getExpirationSeconds());
         return offsetDateTimeProvider.getCurrentDate().isAfter(expiration);
     }
 

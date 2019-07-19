@@ -26,10 +26,12 @@ import org.springframework.util.AntPathMatcher;
 
 import com.github.saphyra.authservice.auth.AuthService;
 import com.github.saphyra.authservice.auth.UriConfiguration;
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AllowedUri;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
+import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.RequestHelper;
 import com.github.saphyra.util.CookieUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,7 +62,7 @@ public class AuthFilterTest {
     private UriConfiguration uriConfiguration;
 
     @Mock
-    private PropertyConfiguration propertyConfiguration;
+    private CommonPropertyConfiguration commonPropertyConfiguration;
 
     @Mock
     private AntPathMatcher antPathMatcher;
@@ -74,6 +76,10 @@ public class AuthFilterTest {
     @Mock
     private RequestHelper requestHelper;
 
+    @SuppressWarnings("unused")
+    @Mock
+    private AuthPropertyConfiguration authPropertyConfiguration;
+
     @InjectMocks
     private AuthFilter underTest;
 
@@ -83,8 +89,8 @@ public class AuthFilterTest {
     @Before
     public void init() {
         when(uriConfiguration.getAllowedUris()).thenReturn(Arrays.asList(new AllowedUri(ALLOWED_URI, HttpMethod.POST)));
-        when(propertyConfiguration.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
-        when(propertyConfiguration.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
+        when(commonPropertyConfiguration.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
+        when(commonPropertyConfiguration.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
 
         when(request.getRequestURI()).thenReturn(PROTECTED_URI);
         given(requestHelper.getMethod(request)).willReturn(HttpMethod.POST);

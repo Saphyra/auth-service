@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.integration.component;
+package com.github.saphyra.integration.component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

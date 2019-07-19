@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.integration.cases.login;
+package com.github.saphyra.integration.cases.auth.login;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -23,20 +23,22 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.saphyra.authservice.auth.AuthDao;
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.Credentials;
 import com.github.saphyra.authservice.auth.domain.LoginRequest;
 import com.github.saphyra.authservice.auth.domain.User;
-import com.github.saphyra.authservice.integration.component.MockMvcWrapper;
-import com.github.saphyra.authservice.integration.component.ResponseValidator;
-import com.github.saphyra.authservice.integration.configuration.MvcConfiguration;
-import com.github.saphyra.authservice.integration.domain.UrlEncodedLoginRequest;
+import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.integration.component.MockMvcWrapper;
+import com.github.saphyra.integration.component.ResponseValidator;
+import com.github.saphyra.integration.configuration.AuthConfiguration;
+import com.github.saphyra.integration.configuration.MvcConfiguration;
+import com.github.saphyra.integration.domain.UrlEncodedLoginRequest;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
 @AutoConfigureMockMvc(secure = false)
-@ContextConfiguration(classes = {MvcConfiguration.class, SuccessfulLoginWithMultipleLogin.class})
+@ContextConfiguration(classes = {AuthConfiguration.class, SuccessfulLoginWithMultipleLogin.class})
 @ActiveProfiles("multiple_login")
 public class SuccessfulLoginWithMultipleLogin {
     private static final String USERNAME = "username";
@@ -51,7 +53,10 @@ public class SuccessfulLoginWithMultipleLogin {
     private AuthDao authDao;
 
     @Autowired
-    private PropertyConfiguration propertyConfiguration;
+    private CommonPropertyConfiguration commonPropertyConfiguration;
+
+    @Autowired
+    private AuthPropertyConfiguration authPropertyConfiguration;
 
     @Autowired
     private ResponseValidator responseValidator;
@@ -125,7 +130,7 @@ public class SuccessfulLoginWithMultipleLogin {
         //WHEN
         MockHttpServletResponse response = mockMvcWrapper.postRequest("/login", false, loginRequest);
         //THEN
-        responseValidator.verifyRedirection(response, propertyConfiguration.getSuccessfulLoginRedirection());
+        responseValidator.verifyRedirection(response, authPropertyConfiguration.getSuccessfulLoginRedirection());
         verify(authDao, times(0)).deleteAccessTokenByUserId(USER_ID);
 
         ArgumentCaptor<AccessToken> saveAccessTokenArgumentCaptor = ArgumentCaptor.forClass(AccessToken.class);
@@ -149,7 +154,7 @@ public class SuccessfulLoginWithMultipleLogin {
         //WHEN
         MockHttpServletResponse response = mockMvcWrapper.postRequest("/login", false, loginRequest);
         //THEN
-        responseValidator.verifyRedirection(response, propertyConfiguration.getSuccessfulLoginRedirection());
+        responseValidator.verifyRedirection(response, authPropertyConfiguration.getSuccessfulLoginRedirection());
         verify(authDao, times(0)).deleteAccessTokenByUserId(USER_ID);
 
         ArgumentCaptor<AccessToken> saveAccessTokenArgumentCaptor = ArgumentCaptor.forClass(AccessToken.class);
@@ -167,12 +172,12 @@ public class SuccessfulLoginWithMultipleLogin {
     }
 
     private void verifyCookies(MockHttpServletResponse response, String accessTokenId, int expectedMaxAge) {
-        Cookie accessTokenIdCookie = response.getCookie(propertyConfiguration.getAccessTokenIdCookie());
+        Cookie accessTokenIdCookie = response.getCookie(commonPropertyConfiguration.getAccessTokenIdCookie());
         assertThat(accessTokenIdCookie).isNotNull();
         assertThat(accessTokenIdCookie.getValue()).isEqualTo(accessTokenId);
         assertThat(accessTokenIdCookie.getMaxAge()).isEqualTo(expectedMaxAge);
 
-        Cookie userIdCookie = response.getCookie(propertyConfiguration.getUserIdCookie());
+        Cookie userIdCookie = response.getCookie(commonPropertyConfiguration.getUserIdCookie());
         assertThat(userIdCookie).isNotNull();
         assertThat(userIdCookie.getValue()).isEqualTo(USER_ID);
         assertThat(userIdCookie.getMaxAge()).isEqualTo(expectedMaxAge);

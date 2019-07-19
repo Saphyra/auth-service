@@ -21,11 +21,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.github.saphyra.authservice.auth.AuthService;
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
 import com.github.saphyra.authservice.auth.domain.LoginRequest;
+import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
 import com.github.saphyra.exceptionhandling.exception.ForbiddenException;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.CookieUtil;
@@ -48,7 +49,10 @@ public class AuthControllerTest {
     private AuthService authService;
 
     @Mock
-    private PropertyConfiguration propertyConfiguration;
+    private CommonPropertyConfiguration commonPropertyConfiguration;
+
+    @Mock
+    private AuthPropertyConfiguration authPropertyConfiguration;
 
     @Mock
     private HttpServletResponse response;
@@ -70,10 +74,10 @@ public class AuthControllerTest {
 
     @Before
     public void init() {
-        when(propertyConfiguration.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
-        when(propertyConfiguration.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
-        when(propertyConfiguration.getSuccessfulLoginRedirection()).thenReturn(LOGIN_REDIRECTION);
-        when(propertyConfiguration.getLogoutRedirection()).thenReturn(LOGOUT_REDIRECTION);
+        when(commonPropertyConfiguration.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
+        when(commonPropertyConfiguration.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
+        when(authPropertyConfiguration.getSuccessfulLoginRedirection()).thenReturn(LOGIN_REDIRECTION);
+        when(authPropertyConfiguration.getLogoutRedirection()).thenReturn(LOGOUT_REDIRECTION);
 
         given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
@@ -166,7 +170,7 @@ public class AuthControllerTest {
         //GIVEN
         given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
-        when(propertyConfiguration.getLogoutRedirection()).thenReturn(null);
+        when(authPropertyConfiguration.getLogoutRedirection()).thenReturn(null);
         //WHEN
         underTest.logout(request, response);
         //THEN

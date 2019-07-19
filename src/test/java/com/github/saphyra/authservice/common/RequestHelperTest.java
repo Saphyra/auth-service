@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.auth.impl;
+package com.github.saphyra.authservice.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -13,14 +13,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpMethod;
 
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
-
 @RunWith(MockitoJUnitRunner.class)
 public class RequestHelperTest {
     private static final String REQUEST_TYPE_HEADER = "request_type_header";
     private static final String REQUEST_TYPE_VALUE = "request_type_value";
     @Mock
-    private PropertyConfiguration propertyConfiguration;
+    private CommonPropertyConfiguration commonPropertyConfiguration;
 
     @InjectMocks
     private RequestHelper underTest;
@@ -30,8 +28,8 @@ public class RequestHelperTest {
 
     @Before
     public void setUp() {
-        given(propertyConfiguration.getRequestTypeHeader()).willReturn(REQUEST_TYPE_HEADER);
-        given(propertyConfiguration.getRestTypeValue()).willReturn(REQUEST_TYPE_VALUE);
+        given(commonPropertyConfiguration.getRequestTypeHeader()).willReturn(REQUEST_TYPE_HEADER);
+        given(commonPropertyConfiguration.getRestTypeValue()).willReturn(REQUEST_TYPE_VALUE);
     }
 
     @Test

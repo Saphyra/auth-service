@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.github.saphyra.authservice.auth.AuthDao;
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.Credentials;
 import com.github.saphyra.authservice.auth.domain.User;
@@ -22,7 +22,7 @@ class LoginService {
     private final AuthDao authDao;
     private final IdGenerator idGenerator;
     private final OffsetDateTimeProvider offsetDateTimeProvider;
-    private final PropertyConfiguration propertyConfiguration;
+    private final AuthPropertyConfiguration authPropertyConfiguration;
 
     AccessToken login(String userName, String password, Boolean rememberMe) {
         User user = authDao.findUserByUserName(userName)
@@ -33,7 +33,7 @@ class LoginService {
             throw new UnauthorizedException("Bad password.");
         }
 
-        if (!propertyConfiguration.isMultipleLoginAllowed()) {
+        if (!authPropertyConfiguration.isMultipleLoginAllowed()) {
             log.debug("Multiple login is not allowed. Deleting accessTokens for user {}", user.getUserId());
             authDao.deleteAccessTokenByUserId(user.getUserId());
         }

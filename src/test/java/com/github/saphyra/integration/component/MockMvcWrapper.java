@@ -1,4 +1,4 @@
-package com.github.saphyra.authservice.integration.component;
+package com.github.saphyra.integration.component;
 
 import static java.util.Objects.isNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

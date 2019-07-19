@@ -8,16 +8,19 @@ import org.springframework.context.annotation.Configuration;
 import com.github.saphyra.authservice.auth.impl.AuthFilter;
 
 @Configuration
-@ComponentScan(basePackages = "com.github.saphyra.authservice")
+@ComponentScan(basePackages = {
+    "com.github.saphyra.authservice.auth",
+    "com.github.saphyra.authservice.common"
+})
 public class AuthServiceBeanConfiguration {
     @Bean
     public FilterRegistrationBean<AuthFilter> authFilterFilterRegistrationBean(
         AuthFilter authFilter,
-        PropertyConfiguration propertyConfiguration
+        AuthPropertyConfiguration authPropertyConfiguration
     ) {
         FilterRegistrationBean<AuthFilter> filterRegistrationBean = new FilterRegistrationBean<>();
         filterRegistrationBean.setFilter(authFilter);
-        filterRegistrationBean.setOrder(propertyConfiguration.getFilterOrder());
+        filterRegistrationBean.setOrder(authPropertyConfiguration.getFilterOrder());
         return filterRegistrationBean;
     }
 }

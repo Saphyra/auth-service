@@ -1,7 +1,7 @@
 package com.github.saphyra.authservice.auth.impl;
 
-import static com.github.saphyra.authservice.auth.configuration.PropertyConfiguration.LOGIN_ENDPOINT;
-import static com.github.saphyra.authservice.auth.configuration.PropertyConfiguration.LOGOUT_ENDPOINT;
+import static com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration.LOGIN_ENDPOINT;
+import static com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration.LOGOUT_ENDPOINT;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -17,11 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.saphyra.authservice.auth.AuthService;
-import com.github.saphyra.authservice.auth.configuration.PropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
 import com.github.saphyra.authservice.auth.domain.LoginRequest;
+import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
 import com.github.saphyra.exceptionhandling.exception.ForbiddenException;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.CookieUtil;
@@ -35,7 +36,8 @@ class AuthController {
     private final AuthContextFactory authContextFactory;
     private final AuthService authService;
     private final CookieUtil cookieUtil;
-    private final PropertyConfiguration propertyConfiguration;
+    private final AuthPropertyConfiguration authPropertyConfiguration;
+    private final CommonPropertyConfiguration commonPropertyConfiguration;
     private final FilterHelper filterHelper;
 
     @PostMapping(value = LOGIN_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -57,7 +59,7 @@ class AuthController {
         log.debug("LoginRequest: {}", loginRequest);
         try {
             login(loginRequest, response);
-            response.sendRedirect(propertyConfiguration.getSuccessfulLoginRedirection());
+            response.sendRedirect(authPropertyConfiguration.getSuccessfulLoginRedirection());
         } catch (UnauthorizedException ex) {
             log.warn("Login failed: {}", ex.getMessage());
             AuthContext authContext = getAuthContext(request, AccessStatus.UNAUTHORIZED);
@@ -68,22 +70,22 @@ class AuthController {
     private void login(LoginRequest loginRequest, HttpServletResponse response) {
         AccessToken accessToken = authService.login(loginRequest.getUserName(), loginRequest.getPassword(), loginRequest.getRememberMe());
         int expiration = accessToken.isPersistent() ? Integer.MAX_VALUE : -1;
-        cookieUtil.setCookie(response, propertyConfiguration.getUserIdCookie(), accessToken.getUserId(), expiration);
-        cookieUtil.setCookie(response, propertyConfiguration.getAccessTokenIdCookie(), accessToken.getAccessTokenId(), expiration);
+        cookieUtil.setCookie(response, commonPropertyConfiguration.getUserIdCookie(), accessToken.getUserId(), expiration);
+        cookieUtil.setCookie(response, commonPropertyConfiguration.getAccessTokenIdCookie(), accessToken.getAccessTokenId(), expiration);
         log.info("Access token successfully created, and sent for the client.");
     }
 
     @RequestMapping(LOGOUT_ENDPOINT)
     void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("Logout request arrived.");
-        Optional<String> userId = cookieUtil.getCookie(request, propertyConfiguration.getUserIdCookie());
-        Optional<String> accessTokenId = cookieUtil.getCookie(request, propertyConfiguration.getAccessTokenIdCookie());
+        Optional<String> userId = cookieUtil.getCookie(request, commonPropertyConfiguration.getUserIdCookie());
+        Optional<String> accessTokenId = cookieUtil.getCookie(request, commonPropertyConfiguration.getAccessTokenIdCookie());
         try {
             if (userId.isPresent() && accessTokenId.isPresent()) {
                 authService.logout(userId.get(), accessTokenId.get());
             }
 
-            Optional.ofNullable(propertyConfiguration.getLogoutRedirection()).ifPresent(redirectionPath -> {
+            Optional.ofNullable(authPropertyConfiguration.getLogoutRedirection()).ifPresent(redirectionPath -> {
                 try {
                     response.sendRedirect(redirectionPath);
                 } catch (IOException e) {
