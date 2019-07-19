@@ -16,12 +16,14 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 
 import com.github.saphyra.authservice.auth.AuthDao;
+import com.github.saphyra.authservice.auth.EnableAuthService;
 import com.github.saphyra.authservice.auth.ErrorResponseResolver;
 import com.github.saphyra.authservice.auth.UriConfiguration;
 import com.github.saphyra.authservice.auth.domain.AllowedUri;
 
 @TestConfiguration
 @Import(MvcConfiguration.class)
+@EnableAuthService
 public class AuthConfiguration {
     @MockBean
     private AuthDao authDao;
