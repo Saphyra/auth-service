@@ -31,6 +31,7 @@ import com.github.saphyra.authservice.domain.LoginRequest;
 import com.github.saphyra.authservice.domain.RestErrorResponse;
 import com.github.saphyra.authservice.domain.User;
 import com.github.saphyra.authservice.integration.component.MockMvcWrapper;
+import com.github.saphyra.authservice.integration.component.ResponseValidator;
 import com.github.saphyra.authservice.integration.configuration.MvcConfiguration;
 import com.github.saphyra.authservice.integration.domain.UrlEncodedLoginRequest;
 import com.github.saphyra.exceptionhandling.domain.ErrorResponse;
@@ -59,6 +60,9 @@ public class FailedLoginTest {
 
     @Autowired
     private ErrorResponseResolver errorResponseResolver;
+
+    @Autowired
+    private ResponseValidator responseValidator;
 
     private LoginRequest loginRequest = new LoginRequest(USERNAME, PASSWORD, false);
     private UrlEncodedLoginRequest urlEncodedLoginRequest = new UrlEncodedLoginRequest(loginRequest);
@@ -127,7 +131,7 @@ public class FailedLoginTest {
         AuthContext authContext = argumentCaptor.getValue();
 
         verifyAuthContext(authContext, false);
-        verifyUnauthorizedFormResponse(response);
+        responseValidator.verifyRedirection(response, LOGIN_FAILURE_REDIRECTION);
     }
 
     @Test
@@ -141,7 +145,7 @@ public class FailedLoginTest {
         AuthContext authContext = argumentCaptor.getValue();
 
         verifyAuthContext(authContext, false);
-        verifyUnauthorizedFormResponse(response);
+        responseValidator.verifyRedirection(response, LOGIN_FAILURE_REDIRECTION);
     }
 
     private void verifyAuthContext(AuthContext authContext, boolean isRest) {
@@ -158,10 +162,5 @@ public class FailedLoginTest {
         ErrorResponse errorResponse = objectMapperWrapper.readValue(response.getContentAsString(), ErrorResponse.class);
         assertThat(errorResponse.getHttpStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
         assertThat(errorResponse.getErrorCode()).isEqualTo(AccessStatus.UNAUTHORIZED.name());
-    }
-
-    private void verifyUnauthorizedFormResponse(MockHttpServletResponse response) {
-        assertThat(response.getStatus()).isEqualTo(302);
-        assertThat(response.getHeader("Location")).isEqualTo(LOGIN_FAILURE_REDIRECTION);
     }
 }

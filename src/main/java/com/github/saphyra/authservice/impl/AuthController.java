@@ -22,6 +22,7 @@ import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
 import com.github.saphyra.authservice.domain.AuthContext;
 import com.github.saphyra.authservice.domain.LoginRequest;
+import com.github.saphyra.exceptionhandling.exception.ForbiddenException;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,7 @@ class AuthController {
             login(loginRequest, response);
         } catch (UnauthorizedException ex) {
             log.warn("Login failed: {}", ex.getMessage());
-            AuthContext authContext = getAuthContext(request);
+            AuthContext authContext = getAuthContext(request, AccessStatus.UNAUTHORIZED);
             filterHelper.handleAccessDenied(request, response, authContext);
         }
     }
@@ -59,7 +60,7 @@ class AuthController {
             response.sendRedirect(propertyConfiguration.getSuccessfulLoginRedirection());
         } catch (UnauthorizedException ex) {
             log.warn("Login failed: {}", ex.getMessage());
-            AuthContext authContext = getAuthContext(request);
+            AuthContext authContext = getAuthContext(request, AccessStatus.UNAUTHORIZED);
             filterHelper.handleAccessDenied(request, response, authContext);
         }
     }
@@ -72,25 +73,31 @@ class AuthController {
         log.info("Access token successfully created, and sent for the client.");
     }
 
-    private AuthContext getAuthContext(HttpServletRequest request) {
-        return authContextFactory.create(request, AccessStatus.UNAUTHORIZED);
-    }
-
     @RequestMapping(LOGOUT_ENDPOINT)
-    void logout(HttpServletRequest request, HttpServletResponse response) {
+    void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("Logout request arrived.");
         Optional<String> userId = cookieUtil.getCookie(request, propertyConfiguration.getUserIdCookie());
         Optional<String> accessTokenId = cookieUtil.getCookie(request, propertyConfiguration.getAccessTokenIdCookie());
-        if (userId.isPresent() && accessTokenId.isPresent()) {
-            authService.logout(userId.get(), accessTokenId.get());
-        }
-
-        Optional.ofNullable(propertyConfiguration.getLogoutRedirection()).ifPresent(redirectionPath -> {
-            try {
-                response.sendRedirect(redirectionPath);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        try {
+            if (userId.isPresent() && accessTokenId.isPresent()) {
+                authService.logout(userId.get(), accessTokenId.get());
             }
-        });
+
+            Optional.ofNullable(propertyConfiguration.getLogoutRedirection()).ifPresent(redirectionPath -> {
+                try {
+                    response.sendRedirect(redirectionPath);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (ForbiddenException e) {
+            log.warn("Logout failed: {}", e.getMessage());
+            AuthContext authContext = getAuthContext(request, AccessStatus.FORBIDDEN);
+            filterHelper.handleAccessDenied(request, response, authContext);
+        }
+    }
+
+    private AuthContext getAuthContext(HttpServletRequest request, AccessStatus accessStatus) {
+        return authContextFactory.create(request, accessStatus);
     }
 }

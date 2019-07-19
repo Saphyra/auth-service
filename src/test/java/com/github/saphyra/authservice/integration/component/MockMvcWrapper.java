@@ -1,6 +1,11 @@
 package com.github.saphyra.authservice.integration.component;
 
+import static java.util.Objects.isNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
+import java.util.Optional;
+
+import javax.servlet.http.Cookie;
 
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.http.MediaType;
@@ -17,8 +22,12 @@ public class MockMvcWrapper {
     private final MockMvc mockMvc;
     private final ObjectMapperWrapper objectMapperWrapper;
 
-    public MockHttpServletResponse postRequest(String uri, boolean isRest, Object requestBody) throws Exception {
+    public MockHttpServletResponse postRequest(String uri, boolean isRest, Object requestBody, Cookie... cookies) throws Exception {
         MockHttpServletRequestBuilder request = post(uri);
+
+        if(!isNull(cookies) && cookies.length > 0){
+            request.cookie(cookies);
+        }
 
         if (isRest) {
             request.header("RequestType", "rest")
@@ -26,8 +35,9 @@ public class MockMvcWrapper {
                 .contentType(MediaType.APPLICATION_JSON);
         } else {
             request.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .content(requestBody.toString());
+                .content(Optional.ofNullable(requestBody).map(Object::toString).orElse(""));
         }
+
         return sendRequest(request);
     }
 

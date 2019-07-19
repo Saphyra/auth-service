@@ -29,6 +29,7 @@ import com.github.saphyra.authservice.domain.Credentials;
 import com.github.saphyra.authservice.domain.LoginRequest;
 import com.github.saphyra.authservice.domain.User;
 import com.github.saphyra.authservice.integration.component.MockMvcWrapper;
+import com.github.saphyra.authservice.integration.component.ResponseValidator;
 import com.github.saphyra.authservice.integration.configuration.MvcConfiguration;
 import com.github.saphyra.authservice.integration.domain.UrlEncodedLoginRequest;
 
@@ -51,6 +52,9 @@ public class SuccessfulLoginWithMultipleLogin {
 
     @Autowired
     private PropertyConfiguration propertyConfiguration;
+
+    @Autowired
+    private ResponseValidator responseValidator;
 
     @Before
     public void setUp() {
@@ -121,7 +125,7 @@ public class SuccessfulLoginWithMultipleLogin {
         //WHEN
         MockHttpServletResponse response = mockMvcWrapper.postRequest("/login", false, loginRequest);
         //THEN
-        assertThat(response.getStatus()).isEqualTo(302);
+        responseValidator.verifyRedirection(response, propertyConfiguration.getSuccessfulLoginRedirection());
         verify(authDao, times(0)).deleteAccessTokenByUserId(USER_ID);
 
         ArgumentCaptor<AccessToken> saveAccessTokenArgumentCaptor = ArgumentCaptor.forClass(AccessToken.class);
@@ -145,7 +149,7 @@ public class SuccessfulLoginWithMultipleLogin {
         //WHEN
         MockHttpServletResponse response = mockMvcWrapper.postRequest("/login", false, loginRequest);
         //THEN
-        assertThat(response.getStatus()).isEqualTo(302);
+        responseValidator.verifyRedirection(response, propertyConfiguration.getSuccessfulLoginRedirection());
         verify(authDao, times(0)).deleteAccessTokenByUserId(USER_ID);
 
         ArgumentCaptor<AccessToken> saveAccessTokenArgumentCaptor = ArgumentCaptor.forClass(AccessToken.class);

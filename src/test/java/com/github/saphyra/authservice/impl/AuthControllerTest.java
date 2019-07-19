@@ -1,6 +1,7 @@
 package com.github.saphyra.authservice.impl;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -25,6 +26,7 @@ import com.github.saphyra.authservice.domain.AccessStatus;
 import com.github.saphyra.authservice.domain.AccessToken;
 import com.github.saphyra.authservice.domain.AuthContext;
 import com.github.saphyra.authservice.domain.LoginRequest;
+import com.github.saphyra.exceptionhandling.exception.ForbiddenException;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.CookieUtil;
 
@@ -77,6 +79,7 @@ public class AuthControllerTest {
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
 
         given(authContextFactory.create(request, AccessStatus.UNAUTHORIZED)).willReturn(authContext);
+        given(authContextFactory.create(request, AccessStatus.FORBIDDEN)).willReturn(authContext);
     }
 
     @Test
@@ -146,7 +149,20 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void testLogoutShouldNotRedirect() {
+    public void logout_handleForbidden() throws IOException {
+        //GIVEN
+        given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
+        given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
+
+        doThrow(new ForbiddenException("")).when(authService).logout(USER_ID, ACCESS_TOKEN_ID);
+        //WHEN
+        underTest.logout(request, response);
+        //THEN
+        verify(filterHelper).handleAccessDenied(request, response, authContext);
+    }
+
+    @Test
+    public void testLogoutShouldNotRedirect() throws IOException {
         //GIVEN
         given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
