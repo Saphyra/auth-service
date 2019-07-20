@@ -9,4 +9,6 @@ public interface RedirectionFilterSettings {
     boolean shouldRedirect(RedirectionContext redirectionContext);
 
     String getRedirectionPath(RedirectionContext redirectionContext);
+
+    Integer getFilterOrder();
 }
