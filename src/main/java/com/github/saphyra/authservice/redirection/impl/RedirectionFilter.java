@@ -56,7 +56,9 @@ public class RedirectionFilter extends OncePerRequestFilter {
         log.debug("requestUri: {}, requestMethod: {}", requestUri, requestMethod);
         return redirectionFilterSettings.stream()
             .sorted(Comparator.comparing(RedirectionFilterSettings::getFilterOrder))
-            .filter(redirectionSetting -> antPathMatcher.match(redirectionSetting.getProtectedUri().getRequestUri(), requestUri))
+            .filter(redirectionSetting -> redirectionSetting.getProtectedUri().getRequestUris().stream()
+                .anyMatch(protectedUri -> antPathMatcher.match(protectedUri, requestUri))
+            )
             .filter(redirectionSetting -> redirectionSetting.getProtectedUri().getProtectedMethods().contains(requestMethod))
             .collect(Collectors.toList());
     }
