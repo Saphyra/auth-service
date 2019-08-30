@@ -1,27 +1,5 @@
 package com.github.saphyra.integration.cases.auth.login;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
-
 import com.github.saphyra.authservice.auth.AuthDao;
 import com.github.saphyra.authservice.auth.ErrorResponseResolver;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
@@ -36,6 +14,27 @@ import com.github.saphyra.integration.component.ResponseValidator;
 import com.github.saphyra.integration.configuration.AuthConfiguration;
 import com.github.saphyra.integration.domain.UrlEncodedLoginRequest;
 import com.github.saphyra.util.ObjectMapperWrapper;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
@@ -85,7 +84,7 @@ public class FailedLoginTest {
 
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setHttpStatus(HttpStatus.UNAUTHORIZED.value());
-        errorResponse.setErrorCode(AccessStatus.UNAUTHORIZED.name());
+        errorResponse.setErrorCode(AccessStatus.LOGIN_FAILED.name());
         RestErrorResponse restErrorResponse = new RestErrorResponse(HttpStatus.UNAUTHORIZED, errorResponse);
         given(errorResponseResolver.getRestErrorResponse(any())).willReturn(restErrorResponse);
 
@@ -149,7 +148,7 @@ public class FailedLoginTest {
     }
 
     private void verifyAuthContext(AuthContext authContext, boolean isRest) {
-        assertThat(authContext.getAccessStatus()).isEqualTo(AccessStatus.UNAUTHORIZED);
+        assertThat(authContext.getAccessStatus()).isEqualTo(AccessStatus.LOGIN_FAILED);
         assertThat(authContext.getRequestUri()).isEqualTo(LOGIN_MAPPING);
         assertThat(authContext.getRequestMethod()).isEqualTo(HttpMethod.POST);
         assertThat(authContext.isRest()).isEqualTo(isRest);
@@ -161,6 +160,6 @@ public class FailedLoginTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
         ErrorResponse errorResponse = objectMapperWrapper.readValue(response.getContentAsString(), ErrorResponse.class);
         assertThat(errorResponse.getHttpStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
-        assertThat(errorResponse.getErrorCode()).isEqualTo(AccessStatus.UNAUTHORIZED.name());
+        assertThat(errorResponse.getErrorCode()).isEqualTo(AccessStatus.LOGIN_FAILED.name());
     }
 }

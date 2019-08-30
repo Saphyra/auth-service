@@ -1,22 +1,6 @@
 package com.github.saphyra.authservice.auth.impl;
 
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import com.github.saphyra.authservice.auth.AuthService;
 import com.github.saphyra.authservice.auth.UriConfiguration;
 import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
@@ -28,6 +12,20 @@ import com.github.saphyra.authservice.common.RequestHelper;
 import com.github.saphyra.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
+import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -78,7 +76,7 @@ public class AuthFilter extends OncePerRequestFilter {
         log.debug("Authenticating...");
         if (!accessTokenId.isPresent() || !userIdValue.isPresent()) {
             log.warn("Cookies not found.");
-            return AccessStatus.UNAUTHORIZED;
+            return AccessStatus.COOKIE_NOT_FOUND;
         }
 
         return authService.canAccess(

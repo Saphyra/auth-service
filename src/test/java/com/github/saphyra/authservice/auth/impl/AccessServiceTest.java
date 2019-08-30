@@ -93,13 +93,13 @@ public class AccessServiceTest {
         //GIVEN
         when(accessTokenCache.get(ACCESS_TOKEN_ID)).thenReturn(Optional.empty());
         //WHEN
-        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.ACCESS_TOKEN_NOT_FOUND, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
     }
 
     @Test
     public void testCanAccessShouldReturnUnauthorizedWhenBadUserId() {
         //WHEN
-        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, FAKE_USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.INVALID_USER_ID, underTest.canAccess(REQUEST_URI, HttpMethod.POST, FAKE_USER_ID, ACCESS_TOKEN_ID));
     }
 
     @Test
@@ -108,7 +108,7 @@ public class AccessServiceTest {
         accessToken.setPersistent(false);
         accessToken.setLastAccess(OffsetDateTime.now().minusDays(2));
         //WHEN
-        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.ACCESS_TOKEN_EXPIRED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
     }
 
     @Test
@@ -116,7 +116,7 @@ public class AccessServiceTest {
         //GIVEN
         when(authDao.findUserById(USER_ID)).thenReturn(Optional.empty());
         //WHEN
-        assertEquals(AccessStatus.UNAUTHORIZED, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
+        assertEquals(AccessStatus.USER_NOT_FOUND, underTest.canAccess(REQUEST_URI, HttpMethod.POST, USER_ID, ACCESS_TOKEN_ID));
     }
 
     @Test

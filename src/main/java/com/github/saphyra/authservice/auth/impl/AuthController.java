@@ -1,21 +1,5 @@
 package com.github.saphyra.authservice.auth.impl;
 
-import static com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration.LOGIN_ENDPOINT;
-import static com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration.LOGOUT_ENDPOINT;
-
-import java.io.IOException;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.github.saphyra.authservice.auth.AuthService;
 import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
@@ -28,6 +12,20 @@ import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.IOException;
+import java.util.Optional;
+
+import static com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration.LOGIN_ENDPOINT;
+import static com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration.LOGOUT_ENDPOINT;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,7 +46,7 @@ class AuthController {
             login(loginRequest, response);
         } catch (UnauthorizedException ex) {
             log.warn("Login failed: {}", ex.getMessage());
-            AuthContext authContext = getAuthContext(request, AccessStatus.UNAUTHORIZED);
+            AuthContext authContext = getAuthContext(request, AccessStatus.LOGIN_FAILED);
             filterHelper.handleAccessDenied(request, response, authContext);
         }
     }
@@ -62,7 +60,7 @@ class AuthController {
             response.sendRedirect(authPropertyConfiguration.getSuccessfulLoginRedirection());
         } catch (UnauthorizedException ex) {
             log.warn("Login failed: {}", ex.getMessage());
-            AuthContext authContext = getAuthContext(request, AccessStatus.UNAUTHORIZED);
+            AuthContext authContext = getAuthContext(request, AccessStatus.LOGIN_FAILED);
             filterHelper.handleAccessDenied(request, response, authContext);
         }
     }

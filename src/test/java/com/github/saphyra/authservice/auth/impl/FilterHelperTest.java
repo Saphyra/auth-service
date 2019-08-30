@@ -1,14 +1,10 @@
 package com.github.saphyra.authservice.auth.impl;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.github.saphyra.authservice.auth.ErrorResponseResolver;
+import com.github.saphyra.authservice.auth.domain.AuthContext;
+import com.github.saphyra.authservice.auth.domain.RestErrorResponse;
+import com.github.saphyra.authservice.common.RequestHelper;
+import com.github.saphyra.util.ObjectMapperWrapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -16,11 +12,13 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 
-import com.github.saphyra.authservice.auth.ErrorResponseResolver;
-import com.github.saphyra.authservice.auth.domain.AuthContext;
-import com.github.saphyra.authservice.auth.domain.RestErrorResponse;
-import com.github.saphyra.authservice.common.RequestHelper;
-import com.github.saphyra.util.ObjectMapperWrapper;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FilterHelperTest {
@@ -65,6 +63,7 @@ public class FilterHelperTest {
         underTest.handleAccessDenied(request, response, authContext);
         //THEN
         verify(response).setStatus(HttpStatus.BAD_REQUEST.value());
+        verify(response).setCharacterEncoding("UTF-8");
         verify(writer).write(RESPONSE_BODY);
         verify(writer).flush();
         verify(writer).close();

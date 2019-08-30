@@ -1,25 +1,5 @@
 package com.github.saphyra.authservice.auth.impl;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import com.github.saphyra.authservice.auth.AuthService;
 import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
@@ -30,6 +10,24 @@ import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
 import com.github.saphyra.exceptionhandling.exception.ForbiddenException;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.CookieUtil;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.util.Optional;
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthControllerTest {
@@ -82,7 +80,7 @@ public class AuthControllerTest {
         given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
 
-        given(authContextFactory.create(request, AccessStatus.UNAUTHORIZED)).willReturn(authContext);
+        given(authContextFactory.create(request, AccessStatus.LOGIN_FAILED)).willReturn(authContext);
         given(authContextFactory.create(request, AccessStatus.FORBIDDEN)).willReturn(authContext);
     }
 

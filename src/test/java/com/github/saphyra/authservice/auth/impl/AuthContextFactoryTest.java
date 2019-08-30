@@ -1,12 +1,10 @@
 package com.github.saphyra.authservice.auth.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.github.saphyra.authservice.auth.domain.AccessStatus;
+import com.github.saphyra.authservice.auth.domain.AuthContext;
+import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.RequestHelper;
+import com.github.saphyra.util.CookieUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -14,11 +12,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpMethod;
 
-import com.github.saphyra.authservice.auth.domain.AccessStatus;
-import com.github.saphyra.authservice.auth.domain.AuthContext;
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
-import com.github.saphyra.authservice.common.RequestHelper;
-import com.github.saphyra.util.CookieUtil;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthContextFactoryTest {
@@ -55,14 +53,14 @@ public class AuthContextFactoryTest {
         given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
         //WHEN
-        AuthContext result = underTest.create(request, AccessStatus.UNAUTHORIZED);
+        AuthContext result = underTest.create(request, AccessStatus.LOGIN_FAILED);
         //THEN
         assertThat(result.getRequestUri()).isEqualTo(REQUEST_URI);
         assertThat(result.getRequestMethod()).isEqualTo(HttpMethod.POST);
         assertThat(result.isRest()).isTrue();
         assertThat(result.getAccessTokenId()).contains(ACCESS_TOKEN_ID);
         assertThat(result.getUserId()).contains(USER_ID);
-        assertThat(result.getAccessStatus()).isEqualTo(AccessStatus.UNAUTHORIZED);
+        assertThat(result.getAccessStatus()).isEqualTo(AccessStatus.LOGIN_FAILED);
         assertThat(result.getRequest()).isEqualTo(request);
     }
 }

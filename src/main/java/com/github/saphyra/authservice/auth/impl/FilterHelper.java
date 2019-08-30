@@ -1,13 +1,5 @@
 package com.github.saphyra.authservice.auth.impl;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Component;
-
 import com.github.saphyra.authservice.auth.ErrorResponseResolver;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
 import com.github.saphyra.authservice.auth.domain.RestErrorResponse;
@@ -15,6 +7,12 @@ import com.github.saphyra.authservice.common.RequestHelper;
 import com.github.saphyra.util.ObjectMapperWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 @Slf4j
 @Component
@@ -29,6 +27,7 @@ class FilterHelper {
             log.info("Sending error. Cause: Access denied. AccessStatus: {}", authContext.getAccessStatus());
             RestErrorResponse errorResponse = errorResponseResolver.getRestErrorResponse(authContext);
             response.setStatus(errorResponse.getHttpStatus().value());
+            response.setCharacterEncoding("UTF-8");
             PrintWriter writer = response.getWriter();
             writer.write(objectMapperWrapper.writeValueAsString(errorResponse.getResponseBody()));
             writer.flush();

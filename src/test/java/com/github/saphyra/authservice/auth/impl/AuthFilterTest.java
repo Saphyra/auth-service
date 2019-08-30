@@ -1,29 +1,5 @@
 package com.github.saphyra.authservice.auth.impl;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.HttpMethod;
-import org.springframework.util.AntPathMatcher;
-
 import com.github.saphyra.authservice.auth.AuthService;
 import com.github.saphyra.authservice.auth.UriConfiguration;
 import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
@@ -33,6 +9,28 @@ import com.github.saphyra.authservice.auth.domain.AuthContext;
 import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
 import com.github.saphyra.authservice.common.RequestHelper;
 import com.github.saphyra.util.CookieUtil;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.AntPathMatcher;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthFilterTest {
@@ -129,7 +127,7 @@ public class AuthFilterTest {
     @Test
     public void testAuthenticationShouldNotCallFacadeWhenCookieNotFound() throws ServletException, IOException {
         //GIVEN
-        given(authContextFactory.create(request, AccessStatus.UNAUTHORIZED)).willReturn(authContext);
+        given(authContextFactory.create(request, AccessStatus.COOKIE_NOT_FOUND)).willReturn(authContext);
         //WHEN
         underTest.doFilterInternal(request, response, filterChain);
         //THEN

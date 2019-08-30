@@ -1,23 +1,20 @@
 package com.github.saphyra.integration.cases.auth.filter;
 
-import static com.github.saphyra.integration.component.TestController.ALLOWED_URI_MAPPING;
-import static com.github.saphyra.integration.component.TestController.PROTECTED_URI_MAPPING;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.io.UnsupportedEncodingException;
-import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.servlet.http.Cookie;
-
+import com.github.saphyra.authservice.auth.AuthDao;
+import com.github.saphyra.authservice.auth.ErrorResponseResolver;
+import com.github.saphyra.authservice.auth.UriConfiguration;
+import com.github.saphyra.authservice.auth.domain.AccessStatus;
+import com.github.saphyra.authservice.auth.domain.AccessToken;
+import com.github.saphyra.authservice.auth.domain.AllowedUri;
+import com.github.saphyra.authservice.auth.domain.AuthContext;
+import com.github.saphyra.authservice.auth.domain.RoleSetting;
+import com.github.saphyra.authservice.auth.domain.User;
+import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.cache.AbstractCache;
+import com.github.saphyra.integration.component.MockMvcWrapper;
+import com.github.saphyra.integration.component.ResponseValidator;
+import com.github.saphyra.integration.component.TestController;
+import com.github.saphyra.integration.configuration.AuthConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,21 +31,22 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.github.saphyra.authservice.auth.AuthDao;
-import com.github.saphyra.authservice.auth.ErrorResponseResolver;
-import com.github.saphyra.authservice.auth.UriConfiguration;
-import com.github.saphyra.authservice.auth.domain.AccessStatus;
-import com.github.saphyra.authservice.auth.domain.AccessToken;
-import com.github.saphyra.authservice.auth.domain.AllowedUri;
-import com.github.saphyra.authservice.auth.domain.AuthContext;
-import com.github.saphyra.authservice.auth.domain.RoleSetting;
-import com.github.saphyra.authservice.auth.domain.User;
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
-import com.github.saphyra.cache.AbstractCache;
-import com.github.saphyra.integration.component.MockMvcWrapper;
-import com.github.saphyra.integration.component.ResponseValidator;
-import com.github.saphyra.integration.component.TestController;
-import com.github.saphyra.integration.configuration.AuthConfiguration;
+import javax.servlet.http.Cookie;
+import java.io.UnsupportedEncodingException;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.github.saphyra.integration.component.TestController.ALLOWED_URI_MAPPING;
+import static com.github.saphyra.integration.component.TestController.PROTECTED_URI_MAPPING;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
@@ -135,7 +133,7 @@ public class FormFilterTest {
         //THEN
         verifyUnauthorized(response);
         verify(errorResponseResolver).getRedirectionPath(argumentCaptor.capture());
-        verifyAuthContext(Optional.empty(), Optional.empty(), AccessStatus.UNAUTHORIZED);
+        verifyAuthContext(Optional.empty(), Optional.empty(), AccessStatus.COOKIE_NOT_FOUND);
     }
 
     @Test
@@ -155,7 +153,7 @@ public class FormFilterTest {
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
         verifyUnauthorized(response);
         verify(errorResponseResolver).getRedirectionPath(argumentCaptor.capture());
-        verifyAuthContextWithCookies(AccessStatus.UNAUTHORIZED);
+        verifyAuthContextWithCookies(AccessStatus.ACCESS_TOKEN_NOT_FOUND);
     }
 
     @Test
@@ -174,7 +172,7 @@ public class FormFilterTest {
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
         verifyUnauthorized(response);
         verify(errorResponseResolver).getRedirectionPath(argumentCaptor.capture());
-        verifyAuthContext(Optional.of(ACCESS_TOKEN_ID), Optional.of(FAKE_USER_ID), AccessStatus.UNAUTHORIZED);
+        verifyAuthContext(Optional.of(ACCESS_TOKEN_ID), Optional.of(FAKE_USER_ID), AccessStatus.INVALID_USER_ID);
     }
 
     @Test
@@ -194,7 +192,7 @@ public class FormFilterTest {
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
         verifyUnauthorized(response);
         verify(errorResponseResolver).getRedirectionPath(argumentCaptor.capture());
-        verifyAuthContextWithCookies(AccessStatus.UNAUTHORIZED);
+        verifyAuthContextWithCookies(AccessStatus.ACCESS_TOKEN_EXPIRED);
     }
 
     @Test
@@ -215,7 +213,7 @@ public class FormFilterTest {
         verify(authDao).findUserById(USER_ID);
         verifyUnauthorized(response);
         verify(errorResponseResolver).getRedirectionPath(argumentCaptor.capture());
-        verifyAuthContextWithCookies(AccessStatus.UNAUTHORIZED);
+        verifyAuthContextWithCookies(AccessStatus.USER_NOT_FOUND);
     }
 
     @Test

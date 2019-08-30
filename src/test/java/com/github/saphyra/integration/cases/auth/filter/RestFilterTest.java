@@ -1,39 +1,5 @@
 package com.github.saphyra.integration.cases.auth.filter;
 
-import static com.github.saphyra.integration.component.TestController.ALLOWED_URI_MAPPING;
-import static com.github.saphyra.integration.component.TestController.PROTECTED_URI_MAPPING;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.io.UnsupportedEncodingException;
-import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.servlet.http.Cookie;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
-
 import com.github.saphyra.authservice.auth.AuthDao;
 import com.github.saphyra.authservice.auth.ErrorResponseResolver;
 import com.github.saphyra.authservice.auth.UriConfiguration;
@@ -51,6 +17,38 @@ import com.github.saphyra.integration.component.TestController;
 import com.github.saphyra.integration.configuration.AuthConfiguration;
 import com.github.saphyra.integration.domain.TestErrorResponse;
 import com.github.saphyra.util.ObjectMapperWrapper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.servlet.http.Cookie;
+import java.io.UnsupportedEncodingException;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.github.saphyra.integration.component.TestController.ALLOWED_URI_MAPPING;
+import static com.github.saphyra.integration.component.TestController.PROTECTED_URI_MAPPING;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
@@ -137,7 +135,7 @@ public class RestFilterTest {
         //THEN
         verifyUnauthorized(response);
         verify(errorResponseResolver).getRestErrorResponse(argumentCaptor.capture());
-        verifyAuthContext(Optional.empty(), Optional.empty(), AccessStatus.UNAUTHORIZED);
+        verifyAuthContext(Optional.empty(), Optional.empty(), AccessStatus.COOKIE_NOT_FOUND);
     }
 
     @Test
@@ -157,7 +155,7 @@ public class RestFilterTest {
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
         verifyUnauthorized(response);
         verify(errorResponseResolver).getRestErrorResponse(argumentCaptor.capture());
-        verifyAuthContextWithCookies(AccessStatus.UNAUTHORIZED);
+        verifyAuthContextWithCookies(AccessStatus.ACCESS_TOKEN_NOT_FOUND);
     }
 
     @Test
@@ -176,7 +174,7 @@ public class RestFilterTest {
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
         verifyUnauthorized(response);
         verify(errorResponseResolver).getRestErrorResponse(argumentCaptor.capture());
-        verifyAuthContext(Optional.of(ACCESS_TOKEN_ID), Optional.of(FAKE_USER_ID), AccessStatus.UNAUTHORIZED);
+        verifyAuthContext(Optional.of(ACCESS_TOKEN_ID), Optional.of(FAKE_USER_ID), AccessStatus.INVALID_USER_ID);
     }
 
     @Test
@@ -196,7 +194,7 @@ public class RestFilterTest {
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
         verifyUnauthorized(response);
         verify(errorResponseResolver).getRestErrorResponse(argumentCaptor.capture());
-        verifyAuthContextWithCookies(AccessStatus.UNAUTHORIZED);
+        verifyAuthContextWithCookies(AccessStatus.ACCESS_TOKEN_EXPIRED);
     }
 
     @Test
@@ -217,7 +215,7 @@ public class RestFilterTest {
         verify(authDao).findUserById(USER_ID);
         verifyUnauthorized(response);
         verify(errorResponseResolver).getRestErrorResponse(argumentCaptor.capture());
-        verifyAuthContextWithCookies(AccessStatus.UNAUTHORIZED);
+        verifyAuthContextWithCookies(AccessStatus.USER_NOT_FOUND);
     }
 
     @Test

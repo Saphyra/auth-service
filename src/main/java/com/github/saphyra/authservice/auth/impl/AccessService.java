@@ -33,24 +33,24 @@ class AccessService {
         Optional<AccessToken> accessTokenOptional = accessTokenCache.get(accessTokenId);
         if (!accessTokenOptional.isPresent()) {
             log.debug("Access token not found with accessTokenId {}", accessTokenId);
-            return AccessStatus.UNAUTHORIZED;
+            return AccessStatus.ACCESS_TOKEN_NOT_FOUND;
         }
 
         AccessToken accessToken = accessTokenOptional.get();
         if (!userId.equals(accessToken.getUserId())) {
             log.warn("{} has no access to AccessToken {}", userId, accessTokenId);
-            return AccessStatus.UNAUTHORIZED;
+            return AccessStatus.INVALID_USER_ID;
         }
 
         if (isAccessTokenExpired(accessToken)) {
             log.debug("AccessToken {} is expired.", accessTokenId);
-            return AccessStatus.UNAUTHORIZED;
+            return AccessStatus.ACCESS_TOKEN_EXPIRED;
         }
 
         Optional<User> userOptional = authDao.findUserById(userId);
         if (!userOptional.isPresent()) {
             log.info("User not found with userId {}", userId);
-            return AccessStatus.UNAUTHORIZED;
+            return AccessStatus.USER_NOT_FOUND;
         }
 
         log.debug("AccessToken is valid.");
