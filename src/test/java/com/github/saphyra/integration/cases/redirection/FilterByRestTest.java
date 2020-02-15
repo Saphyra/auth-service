@@ -28,7 +28,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
 import com.github.saphyra.authservice.redirection.RedirectionFilterSettings;
 import com.github.saphyra.authservice.redirection.domain.ProtectedUri;
 import com.github.saphyra.authservice.redirection.domain.RedirectionContext;
@@ -49,7 +49,7 @@ public class FilterByRestTest {
     private MockMvcWrapper mockMvcWrapper;
 
     @Autowired
-    private CommonPropertyConfiguration commonPropertyConfiguration;
+    private CommonAuthProperties commonAuthProperties;
 
     @Autowired
     private ResponseValidator responseValidator;
@@ -89,8 +89,8 @@ public class FilterByRestTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(redirectionFilterSettings).shouldRedirect(argumentCaptor.capture());
@@ -111,8 +111,8 @@ public class FilterByRestTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         responseValidator.verifyRedirection(response, ALLOWED_URI_MAPPING);

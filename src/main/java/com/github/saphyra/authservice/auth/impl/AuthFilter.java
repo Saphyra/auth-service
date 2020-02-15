@@ -7,7 +7,7 @@ import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfigurati
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AllowedUri;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
 import com.github.saphyra.authservice.common.RequestHelper;
 import com.github.saphyra.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class AuthFilter extends OncePerRequestFilter {
     private final FilterHelper filterHelper;
     private final AntPathMatcher pathMatcher;
     private final AuthPropertyConfiguration authPropertyConfiguration;
-    private final CommonPropertyConfiguration commonPropertyConfiguration;
+    private final CommonAuthProperties commonAuthProperties;
     private final RequestHelper requestHelper;
     private final UriConfiguration uriConfiguration;
 
@@ -53,8 +53,8 @@ public class AuthFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } else {
             log.debug("Protected path: {}", path);
-            Optional<String> accessTokenId = cookieUtil.getCookie(request, commonPropertyConfiguration.getAccessTokenIdCookie());
-            Optional<String> userId = cookieUtil.getCookie(request, commonPropertyConfiguration.getUserIdCookie());
+            Optional<String> accessTokenId = cookieUtil.getCookie(request, commonAuthProperties.getAccessTokenIdCookie());
+            Optional<String> userId = cookieUtil.getCookie(request, commonAuthProperties.getUserIdCookie());
             AccessStatus accessStatus = getAccessStatus(path, method, accessTokenId, userId);
             if (accessStatus == AccessStatus.GRANTED) {
                 log.debug("Access granted.: {}", path);

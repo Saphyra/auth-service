@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpMethod;
 
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
 import com.github.saphyra.authservice.common.RequestHelper;
 import com.github.saphyra.authservice.redirection.domain.RedirectionContext;
 import com.github.saphyra.util.CookieUtil;
@@ -31,7 +31,7 @@ public class RedirectionContextFactoryTest {
     private CookieUtil cookieUtil;
 
     @Mock
-    private CommonPropertyConfiguration commonPropertyConfiguration;
+    private CommonAuthProperties commonAuthProperties;
 
     @Mock
     private RequestHelper requestHelper;
@@ -45,8 +45,8 @@ public class RedirectionContextFactoryTest {
     @Test
     public void create() {
         //GIVEN
-        given(commonPropertyConfiguration.getAccessTokenIdCookie()).willReturn(COOKIE_ACCESS_TOKEN_ID);
-        given(commonPropertyConfiguration.getUserIdCookie()).willReturn(COOKIE_USER_ID);
+        given(commonAuthProperties.getAccessTokenIdCookie()).willReturn(COOKIE_ACCESS_TOKEN_ID);
+        given(commonAuthProperties.getUserIdCookie()).willReturn(COOKIE_USER_ID);
 
         given(request.getRequestURI()).willReturn(REQUEST_URI);
         given(requestHelper.getMethod(request)).willReturn(HttpMethod.POST);

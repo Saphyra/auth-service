@@ -10,7 +10,7 @@ import com.github.saphyra.authservice.auth.domain.AuthContext;
 import com.github.saphyra.authservice.auth.domain.RestErrorResponse;
 import com.github.saphyra.authservice.auth.domain.RoleSetting;
 import com.github.saphyra.authservice.auth.domain.User;
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
 import com.github.saphyra.cache.AbstractCache;
 import com.github.saphyra.integration.component.MockMvcWrapper;
 import com.github.saphyra.integration.component.TestController;
@@ -74,7 +74,7 @@ public class RestFilterTest {
     private ObjectMapperWrapper objectMapperWrapper;
 
     @Autowired
-    private CommonPropertyConfiguration commonPropertyConfiguration;
+    private CommonAuthProperties commonAuthProperties;
 
     @Autowired
     private AuthDao authDao;
@@ -148,8 +148,8 @@ public class RestFilterTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -167,8 +167,8 @@ public class RestFilterTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), FAKE_USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), FAKE_USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -187,8 +187,8 @@ public class RestFilterTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -207,8 +207,8 @@ public class RestFilterTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -228,8 +228,8 @@ public class RestFilterTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).saveAccessToken(accessToken);
@@ -248,8 +248,8 @@ public class RestFilterTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao, times(0)).saveAccessToken(accessToken);
@@ -269,8 +269,8 @@ public class RestFilterTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -287,8 +287,8 @@ public class RestFilterTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -306,8 +306,8 @@ public class RestFilterTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -327,8 +327,8 @@ public class RestFilterTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -350,8 +350,8 @@ public class RestFilterTest {
             PROTECTED_URI_MAPPING,
             true,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);

@@ -9,7 +9,7 @@ import com.github.saphyra.authservice.auth.domain.AllowedUri;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
 import com.github.saphyra.authservice.auth.domain.RoleSetting;
 import com.github.saphyra.authservice.auth.domain.User;
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
 import com.github.saphyra.cache.AbstractCache;
 import com.github.saphyra.integration.component.MockMvcWrapper;
 import com.github.saphyra.integration.component.ResponseValidator;
@@ -69,7 +69,7 @@ public class FormFilterTest {
     private ErrorResponseResolver errorResponseResolver;
 
     @Autowired
-    private CommonPropertyConfiguration commonPropertyConfiguration;
+    private CommonAuthProperties commonAuthProperties;
 
     @Autowired
     private AuthDao authDao;
@@ -146,8 +146,8 @@ public class FormFilterTest {
             PROTECTED_URI_MAPPING,
             false,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -165,8 +165,8 @@ public class FormFilterTest {
             PROTECTED_URI_MAPPING,
             false,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), FAKE_USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), FAKE_USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -185,8 +185,8 @@ public class FormFilterTest {
             PROTECTED_URI_MAPPING,
             false,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -205,8 +205,8 @@ public class FormFilterTest {
             PROTECTED_URI_MAPPING,
             false,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -226,8 +226,8 @@ public class FormFilterTest {
             PROTECTED_URI_MAPPING,
             false,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).saveAccessToken(accessToken);
@@ -246,8 +246,8 @@ public class FormFilterTest {
             PROTECTED_URI_MAPPING,
             false,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao, times(0)).saveAccessToken(accessToken);
@@ -267,8 +267,8 @@ public class FormFilterTest {
             PROTECTED_URI_MAPPING,
             false,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -285,8 +285,8 @@ public class FormFilterTest {
             PROTECTED_URI_MAPPING,
             false,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -304,8 +304,8 @@ public class FormFilterTest {
             PROTECTED_URI_MAPPING,
             false,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -325,8 +325,8 @@ public class FormFilterTest {
             PROTECTED_URI_MAPPING,
             false,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);
@@ -348,8 +348,8 @@ public class FormFilterTest {
             PROTECTED_URI_MAPPING,
             false,
             null,
-            createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
-            createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID)
+            createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID),
+            createCookie(commonAuthProperties.getUserIdCookie(), USER_ID)
         );
         //THEN
         verify(authDao).findAccessTokenByTokenId(ACCESS_TOKEN_ID);

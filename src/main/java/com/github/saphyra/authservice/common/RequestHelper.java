@@ -10,13 +10,13 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class RequestHelper {
-    private final CommonPropertyConfiguration commonPropertyConfiguration;
+    private final CommonAuthProperties commonAuthProperties;
 
     public HttpMethod getMethod(HttpServletRequest request){
         return HttpMethod.resolve(request.getMethod());
     }
 
     public boolean isRestCall(HttpServletRequest request) {
-        return commonPropertyConfiguration.getRestTypeValue().equals(request.getHeader(commonPropertyConfiguration.getRequestTypeHeader()));
+        return commonAuthProperties.getRestTypeValue().equals(request.getHeader(commonAuthProperties.getRequestTypeHeader()));
     }
 }

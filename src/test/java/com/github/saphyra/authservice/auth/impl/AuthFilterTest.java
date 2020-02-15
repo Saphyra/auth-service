@@ -6,7 +6,7 @@ import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfigurati
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AllowedUri;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
 import com.github.saphyra.authservice.common.RequestHelper;
 import com.github.saphyra.util.CookieUtil;
 import org.junit.Before;
@@ -60,7 +60,7 @@ public class AuthFilterTest {
     private UriConfiguration uriConfiguration;
 
     @Mock
-    private CommonPropertyConfiguration commonPropertyConfiguration;
+    private CommonAuthProperties commonAuthProperties;
 
     @Mock
     private AntPathMatcher antPathMatcher;
@@ -87,8 +87,8 @@ public class AuthFilterTest {
     @Before
     public void init() {
         when(uriConfiguration.getAllowedUris()).thenReturn(Arrays.asList(new AllowedUri(ALLOWED_URI, HttpMethod.POST)));
-        when(commonPropertyConfiguration.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
-        when(commonPropertyConfiguration.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
+        when(commonAuthProperties.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
+        when(commonAuthProperties.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
 
         when(request.getRequestURI()).thenReturn(PROTECTED_URI);
         given(requestHelper.getMethod(request)).willReturn(HttpMethod.POST);

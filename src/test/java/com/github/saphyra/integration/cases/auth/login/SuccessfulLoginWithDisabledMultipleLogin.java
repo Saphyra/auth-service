@@ -25,10 +25,9 @@ import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.Credentials;
 import com.github.saphyra.authservice.auth.domain.LoginRequest;
 import com.github.saphyra.authservice.auth.domain.User;
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
 import com.github.saphyra.integration.component.MockMvcWrapper;
 import com.github.saphyra.integration.configuration.AuthConfiguration;
-import com.github.saphyra.integration.configuration.MvcConfiguration;
 import com.github.saphyra.integration.domain.UrlEncodedLoginRequest;
 
 @RunWith(SpringRunner.class)
@@ -48,7 +47,7 @@ public class SuccessfulLoginWithDisabledMultipleLogin {
     private AuthDao authDao;
 
     @Autowired
-    private CommonPropertyConfiguration commonPropertyConfiguration;
+    private CommonAuthProperties commonAuthProperties;
 
     @Before
     public void setUp() {
@@ -161,12 +160,12 @@ public class SuccessfulLoginWithDisabledMultipleLogin {
     }
 
     private void verifyCookies(MockHttpServletResponse response, String accessTokenId, int expectedMaxAge) {
-        Cookie accessTokenIdCookie = response.getCookie(commonPropertyConfiguration.getAccessTokenIdCookie());
+        Cookie accessTokenIdCookie = response.getCookie(commonAuthProperties.getAccessTokenIdCookie());
         assertThat(accessTokenIdCookie).isNotNull();
         assertThat(accessTokenIdCookie.getValue()).isEqualTo(accessTokenId);
         assertThat(accessTokenIdCookie.getMaxAge()).isEqualTo(expectedMaxAge);
 
-        Cookie userIdCookie = response.getCookie(commonPropertyConfiguration.getUserIdCookie());
+        Cookie userIdCookie = response.getCookie(commonAuthProperties.getUserIdCookie());
         assertThat(userIdCookie).isNotNull();
         assertThat(userIdCookie.getValue()).isEqualTo(USER_ID);
         assertThat(userIdCookie.getMaxAge()).isEqualTo(expectedMaxAge);

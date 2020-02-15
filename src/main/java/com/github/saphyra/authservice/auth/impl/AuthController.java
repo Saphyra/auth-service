@@ -6,7 +6,7 @@ import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
 import com.github.saphyra.authservice.auth.domain.LoginRequest;
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
 import com.github.saphyra.exceptionhandling.exception.ForbiddenException;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.CookieUtil;
@@ -35,7 +35,7 @@ class AuthController {
     private final AuthService authService;
     private final CookieUtil cookieUtil;
     private final AuthPropertyConfiguration authPropertyConfiguration;
-    private final CommonPropertyConfiguration commonPropertyConfiguration;
+    private final CommonAuthProperties commonAuthProperties;
     private final FilterHelper filterHelper;
 
     @PostMapping(value = LOGIN_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -68,16 +68,16 @@ class AuthController {
     private void login(LoginRequest loginRequest, HttpServletResponse response) {
         AccessToken accessToken = authService.login(loginRequest.getUserName(), loginRequest.getPassword(), loginRequest.getRememberMe());
         int expiration = accessToken.isPersistent() ? Integer.MAX_VALUE : -1;
-        cookieUtil.setCookie(response, commonPropertyConfiguration.getUserIdCookie(), accessToken.getUserId(), expiration);
-        cookieUtil.setCookie(response, commonPropertyConfiguration.getAccessTokenIdCookie(), accessToken.getAccessTokenId(), expiration);
+        cookieUtil.setCookie(response, commonAuthProperties.getUserIdCookie(), accessToken.getUserId(), expiration);
+        cookieUtil.setCookie(response, commonAuthProperties.getAccessTokenIdCookie(), accessToken.getAccessTokenId(), expiration);
         log.info("Access token successfully created, and sent for the client.");
     }
 
     @RequestMapping(LOGOUT_ENDPOINT)
     void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("Logout request arrived.");
-        Optional<String> userId = cookieUtil.getCookie(request, commonPropertyConfiguration.getUserIdCookie());
-        Optional<String> accessTokenId = cookieUtil.getCookie(request, commonPropertyConfiguration.getAccessTokenIdCookie());
+        Optional<String> userId = cookieUtil.getCookie(request, commonAuthProperties.getUserIdCookie());
+        Optional<String> accessTokenId = cookieUtil.getCookie(request, commonAuthProperties.getAccessTokenIdCookie());
         try {
             if (userId.isPresent() && accessTokenId.isPresent()) {
                 authService.logout(userId.get(), accessTokenId.get());

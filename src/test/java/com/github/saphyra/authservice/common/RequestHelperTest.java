@@ -18,7 +18,7 @@ public class RequestHelperTest {
     private static final String REQUEST_TYPE_HEADER = "request_type_header";
     private static final String REQUEST_TYPE_VALUE = "request_type_value";
     @Mock
-    private CommonPropertyConfiguration commonPropertyConfiguration;
+    private CommonAuthProperties commonAuthProperties;
 
     @InjectMocks
     private RequestHelper underTest;
@@ -28,8 +28,8 @@ public class RequestHelperTest {
 
     @Before
     public void setUp() {
-        given(commonPropertyConfiguration.getRequestTypeHeader()).willReturn(REQUEST_TYPE_HEADER);
-        given(commonPropertyConfiguration.getRestTypeValue()).willReturn(REQUEST_TYPE_VALUE);
+        given(commonAuthProperties.getRequestTypeHeader()).willReturn(REQUEST_TYPE_HEADER);
+        given(commonAuthProperties.getRestTypeValue()).willReturn(REQUEST_TYPE_VALUE);
     }
 
     @Test

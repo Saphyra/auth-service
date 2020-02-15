@@ -29,11 +29,10 @@ import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfigurati
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
 import com.github.saphyra.integration.component.MockMvcWrapper;
 import com.github.saphyra.integration.component.ResponseValidator;
 import com.github.saphyra.integration.configuration.AuthConfiguration;
-import com.github.saphyra.integration.configuration.MvcConfiguration;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
@@ -54,7 +53,7 @@ public class LogoutWithFormTest {
     private AuthDao authDao;
 
     @Autowired
-    private CommonPropertyConfiguration commonPropertyConfiguration;
+    private CommonAuthProperties commonAuthProperties;
 
     @Autowired
     private AuthPropertyConfiguration authPropertyConfiguration;
@@ -76,8 +75,8 @@ public class LogoutWithFormTest {
     @Test
     public void logout() throws Exception {
         //GIVEN
-        Cookie accessTokenCookie = createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
-        Cookie userIdCookie = createCookie(commonPropertyConfiguration.getUserIdCookie(), USER_ID);
+        Cookie accessTokenCookie = createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
+        Cookie userIdCookie = createCookie(commonAuthProperties.getUserIdCookie(), USER_ID);
 
         given(authDao.findAccessTokenByTokenId(ACCESS_TOKEN_ID)).willReturn(Optional.of(accessToken));
         //WHEN
@@ -98,8 +97,8 @@ public class LogoutWithFormTest {
     @Test
     public void logoutWithForbidden() throws Exception {
         //GIVEN
-        Cookie accessTokenCookie = createCookie(commonPropertyConfiguration.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
-        Cookie userIdCookie = createCookie(commonPropertyConfiguration.getUserIdCookie(), FAKE_USER_ID);
+        Cookie accessTokenCookie = createCookie(commonAuthProperties.getAccessTokenIdCookie(), ACCESS_TOKEN_ID);
+        Cookie userIdCookie = createCookie(commonAuthProperties.getUserIdCookie(), FAKE_USER_ID);
 
         given(authDao.findAccessTokenByTokenId(ACCESS_TOKEN_ID)).willReturn(Optional.of(accessToken));
 

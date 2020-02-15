@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Component
 @Getter
-public class CommonPropertyConfiguration {
+public class CommonAuthProperties {
     @Value("${com.github.saphyra.authservice.auth.cookie.access-token-id:cookie-access-token-id}")
     private String accessTokenIdCookie;
 

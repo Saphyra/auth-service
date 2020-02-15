@@ -6,7 +6,7 @@ import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
 import com.github.saphyra.authservice.auth.domain.LoginRequest;
-import com.github.saphyra.authservice.common.CommonPropertyConfiguration;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
 import com.github.saphyra.exceptionhandling.exception.ForbiddenException;
 import com.github.saphyra.exceptionhandling.exception.UnauthorizedException;
 import com.github.saphyra.util.CookieUtil;
@@ -47,7 +47,7 @@ public class AuthControllerTest {
     private AuthService authService;
 
     @Mock
-    private CommonPropertyConfiguration commonPropertyConfiguration;
+    private CommonAuthProperties commonAuthProperties;
 
     @Mock
     private AuthPropertyConfiguration authPropertyConfiguration;
@@ -72,8 +72,8 @@ public class AuthControllerTest {
 
     @Before
     public void init() {
-        when(commonPropertyConfiguration.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
-        when(commonPropertyConfiguration.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
+        when(commonAuthProperties.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
+        when(commonAuthProperties.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
         when(authPropertyConfiguration.getSuccessfulLoginRedirection()).thenReturn(LOGIN_REDIRECTION);
         when(authPropertyConfiguration.getLogoutRedirection()).thenReturn(LOGOUT_REDIRECTION);
 

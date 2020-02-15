@@ -19,11 +19,6 @@ import com.github.saphyra.util.OffsetDateTimeProvider;
 @EnableExceptionHandler
 public class MvcConfiguration {
     @Bean
-    public AntPathMatcher antPathMatcher() {
-        return new AntPathMatcher();
-    }
-
-    @Bean
     public IdGenerator idGenerator() {
         return new IdGenerator();
     }
