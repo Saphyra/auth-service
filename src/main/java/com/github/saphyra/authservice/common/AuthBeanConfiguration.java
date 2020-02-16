@@ -1,5 +1,6 @@
 package com.github.saphyra.authservice.common;
 
+import com.github.saphyra.authservice.auth.ErrorResponseResolver;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,5 +12,11 @@ public class AuthBeanConfiguration {
     @ConditionalOnMissingBean
     public AntPathMatcher antPathMatcher() {
         return new AntPathMatcher();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ErrorResponseResolver errorResponseResolver(CommonAuthProperties commonAuthProperties) {
+        return new DefaultErrorResponseResolver(commonAuthProperties);
     }
 }

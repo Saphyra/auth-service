@@ -1,7 +1,7 @@
 package com.github.saphyra.authservice.auth.impl;
 
 import com.github.saphyra.authservice.auth.AuthService;
-import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthProperties;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
@@ -50,7 +50,7 @@ public class AuthControllerTest {
     private CommonAuthProperties commonAuthProperties;
 
     @Mock
-    private AuthPropertyConfiguration authPropertyConfiguration;
+    private AuthProperties authProperties;
 
     @Mock
     private HttpServletResponse response;
@@ -74,8 +74,8 @@ public class AuthControllerTest {
     public void init() {
         when(commonAuthProperties.getAccessTokenIdCookie()).thenReturn(COOKIE_ACCESS_TOKEN_ID);
         when(commonAuthProperties.getUserIdCookie()).thenReturn(COOKIE_USER_ID);
-        when(authPropertyConfiguration.getSuccessfulLoginRedirection()).thenReturn(LOGIN_REDIRECTION);
-        when(authPropertyConfiguration.getLogoutRedirection()).thenReturn(LOGOUT_REDIRECTION);
+        when(authProperties.getSuccessfulLoginRedirection()).thenReturn(LOGIN_REDIRECTION);
+        when(authProperties.getLogoutRedirection()).thenReturn(LOGOUT_REDIRECTION);
 
         given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
@@ -168,7 +168,7 @@ public class AuthControllerTest {
         //GIVEN
         given(cookieUtil.getCookie(request, COOKIE_ACCESS_TOKEN_ID)).willReturn(Optional.of(ACCESS_TOKEN_ID));
         given(cookieUtil.getCookie(request, COOKIE_USER_ID)).willReturn(Optional.of(USER_ID));
-        when(authPropertyConfiguration.getLogoutRedirection()).thenReturn(null);
+        when(authProperties.getLogoutRedirection()).thenReturn(null);
         //WHEN
         underTest.logout(request, response);
         //THEN

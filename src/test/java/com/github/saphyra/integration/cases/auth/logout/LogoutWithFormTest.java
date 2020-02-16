@@ -1,14 +1,15 @@
 package com.github.saphyra.integration.cases.auth.logout;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-
-import java.util.Optional;
-
-import javax.servlet.http.Cookie;
-
+import com.github.saphyra.authservice.auth.AuthDao;
+import com.github.saphyra.authservice.auth.ErrorResponseResolver;
+import com.github.saphyra.authservice.auth.configuration.AuthProperties;
+import com.github.saphyra.authservice.auth.domain.AccessStatus;
+import com.github.saphyra.authservice.auth.domain.AccessToken;
+import com.github.saphyra.authservice.auth.domain.AuthContext;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
+import com.github.saphyra.integration.component.MockMvcWrapper;
+import com.github.saphyra.integration.component.ResponseValidator;
+import com.github.saphyra.integration.configuration.AuthConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,16 +24,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.github.saphyra.authservice.auth.AuthDao;
-import com.github.saphyra.authservice.auth.ErrorResponseResolver;
-import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
-import com.github.saphyra.authservice.auth.domain.AccessStatus;
-import com.github.saphyra.authservice.auth.domain.AccessToken;
-import com.github.saphyra.authservice.auth.domain.AuthContext;
-import com.github.saphyra.authservice.common.CommonAuthProperties;
-import com.github.saphyra.integration.component.MockMvcWrapper;
-import com.github.saphyra.integration.component.ResponseValidator;
-import com.github.saphyra.integration.configuration.AuthConfiguration;
+import javax.servlet.http.Cookie;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
@@ -56,7 +54,7 @@ public class LogoutWithFormTest {
     private CommonAuthProperties commonAuthProperties;
 
     @Autowired
-    private AuthPropertyConfiguration authPropertyConfiguration;
+    private AuthProperties authProperties;
 
     @Autowired
     private ErrorResponseResolver errorResponseResolver;
@@ -82,7 +80,7 @@ public class LogoutWithFormTest {
         //WHEN
         MockHttpServletResponse response = mockMvcWrapper.postRequest("/logout", false, null, accessTokenCookie, userIdCookie);
         //THEN
-        responseValidator.verifyRedirection(response, authPropertyConfiguration.getLogoutRedirection());
+        responseValidator.verifyRedirection(response, authProperties.getLogoutRedirection());
         verify(authDao).deleteAccessToken(accessToken);
         verify(authDao).successfulLogoutCallback(accessToken);
     }
@@ -91,7 +89,7 @@ public class LogoutWithFormTest {
     public void logoutWhenNotLoggedIn() throws Exception {
         MockHttpServletResponse response = mockMvcWrapper.postRequest("/logout", false, null);
         //THEN
-        responseValidator.verifyRedirection(response, authPropertyConfiguration.getLogoutRedirection());
+        responseValidator.verifyRedirection(response, authProperties.getLogoutRedirection());
     }
 
     @Test

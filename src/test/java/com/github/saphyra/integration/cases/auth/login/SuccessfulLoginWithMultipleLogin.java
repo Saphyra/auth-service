@@ -1,14 +1,16 @@
 package com.github.saphyra.integration.cases.auth.login;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.util.Optional;
-
-import javax.servlet.http.Cookie;
-
+import com.github.saphyra.authservice.auth.AuthDao;
+import com.github.saphyra.authservice.auth.configuration.AuthProperties;
+import com.github.saphyra.authservice.auth.domain.AccessToken;
+import com.github.saphyra.authservice.auth.domain.Credentials;
+import com.github.saphyra.authservice.auth.domain.LoginRequest;
+import com.github.saphyra.authservice.auth.domain.User;
+import com.github.saphyra.authservice.common.CommonAuthProperties;
+import com.github.saphyra.integration.component.MockMvcWrapper;
+import com.github.saphyra.integration.component.ResponseValidator;
+import com.github.saphyra.integration.configuration.AuthConfiguration;
+import com.github.saphyra.integration.domain.UrlEncodedLoginRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,17 +24,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.github.saphyra.authservice.auth.AuthDao;
-import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
-import com.github.saphyra.authservice.auth.domain.AccessToken;
-import com.github.saphyra.authservice.auth.domain.Credentials;
-import com.github.saphyra.authservice.auth.domain.LoginRequest;
-import com.github.saphyra.authservice.auth.domain.User;
-import com.github.saphyra.authservice.common.CommonAuthProperties;
-import com.github.saphyra.integration.component.MockMvcWrapper;
-import com.github.saphyra.integration.component.ResponseValidator;
-import com.github.saphyra.integration.configuration.AuthConfiguration;
-import com.github.saphyra.integration.domain.UrlEncodedLoginRequest;
+import javax.servlet.http.Cookie;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
@@ -55,7 +53,7 @@ public class SuccessfulLoginWithMultipleLogin {
     private CommonAuthProperties commonAuthProperties;
 
     @Autowired
-    private AuthPropertyConfiguration authPropertyConfiguration;
+    private AuthProperties authProperties;
 
     @Autowired
     private ResponseValidator responseValidator;
@@ -129,7 +127,7 @@ public class SuccessfulLoginWithMultipleLogin {
         //WHEN
         MockHttpServletResponse response = mockMvcWrapper.postRequest("/login", false, loginRequest);
         //THEN
-        responseValidator.verifyRedirection(response, authPropertyConfiguration.getSuccessfulLoginRedirection());
+        responseValidator.verifyRedirection(response, authProperties.getSuccessfulLoginRedirection());
         verify(authDao, times(0)).deleteAccessTokenByUserId(USER_ID);
 
         ArgumentCaptor<AccessToken> saveAccessTokenArgumentCaptor = ArgumentCaptor.forClass(AccessToken.class);
@@ -153,7 +151,7 @@ public class SuccessfulLoginWithMultipleLogin {
         //WHEN
         MockHttpServletResponse response = mockMvcWrapper.postRequest("/login", false, loginRequest);
         //THEN
-        responseValidator.verifyRedirection(response, authPropertyConfiguration.getSuccessfulLoginRedirection());
+        responseValidator.verifyRedirection(response, authProperties.getSuccessfulLoginRedirection());
         verify(authDao, times(0)).deleteAccessTokenByUserId(USER_ID);
 
         ArgumentCaptor<AccessToken> saveAccessTokenArgumentCaptor = ArgumentCaptor.forClass(AccessToken.class);

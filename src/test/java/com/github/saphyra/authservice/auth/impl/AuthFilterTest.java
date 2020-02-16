@@ -2,7 +2,7 @@ package com.github.saphyra.authservice.auth.impl;
 
 import com.github.saphyra.authservice.auth.AuthService;
 import com.github.saphyra.authservice.auth.UriConfiguration;
-import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthProperties;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AllowedUri;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
@@ -76,7 +76,7 @@ public class AuthFilterTest {
 
     @SuppressWarnings("unused")
     @Mock
-    private AuthPropertyConfiguration authPropertyConfiguration;
+    private AuthProperties authProperties;
 
     @InjectMocks
     private AuthFilter underTest;

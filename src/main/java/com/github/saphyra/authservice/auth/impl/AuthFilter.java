@@ -3,7 +3,7 @@ package com.github.saphyra.authservice.auth.impl;
 
 import com.github.saphyra.authservice.auth.AuthService;
 import com.github.saphyra.authservice.auth.UriConfiguration;
-import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthProperties;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AllowedUri;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
@@ -37,7 +37,7 @@ public class AuthFilter extends OncePerRequestFilter {
     private final CookieUtil cookieUtil;
     private final FilterHelper filterHelper;
     private final AntPathMatcher pathMatcher;
-    private final AuthPropertyConfiguration authPropertyConfiguration;
+    private final AuthProperties authProperties;
     private final CommonAuthProperties commonAuthProperties;
     private final RequestHelper requestHelper;
     private final UriConfiguration uriConfiguration;
@@ -89,7 +89,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
     @PostConstruct
     void mapAllowedUris() {
-        allowedUris.addAll(authPropertyConfiguration.getDefaultAllowedUris());
+        allowedUris.addAll(authProperties.getDefaultAllowedUris());
         allowedUris.addAll(uriConfiguration.getAllowedUris());
         log.debug("AllowedUris: {}", allowedUris);
     }

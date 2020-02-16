@@ -19,4 +19,7 @@ public class CommonAuthProperties {
 
     @Value("${com.github.saphyra.authservice.auth.rest.rest-type-value:}")
     private String restTypeValue;
+
+    @Value("${com.github.saphyra.authservice.auth.default-error-redirection:/}")
+    private String defaultErrorRedirection;
 }

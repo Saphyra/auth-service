@@ -1,7 +1,7 @@
 package com.github.saphyra.authservice.auth.impl;
 
 import com.github.saphyra.authservice.auth.AuthService;
-import com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration;
+import com.github.saphyra.authservice.auth.configuration.AuthProperties;
 import com.github.saphyra.authservice.auth.domain.AccessStatus;
 import com.github.saphyra.authservice.auth.domain.AccessToken;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
@@ -24,8 +24,8 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration.LOGIN_ENDPOINT;
-import static com.github.saphyra.authservice.auth.configuration.AuthPropertyConfiguration.LOGOUT_ENDPOINT;
+import static com.github.saphyra.authservice.auth.configuration.AuthProperties.LOGIN_ENDPOINT;
+import static com.github.saphyra.authservice.auth.configuration.AuthProperties.LOGOUT_ENDPOINT;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ class AuthController {
     private final AuthContextFactory authContextFactory;
     private final AuthService authService;
     private final CookieUtil cookieUtil;
-    private final AuthPropertyConfiguration authPropertyConfiguration;
+    private final AuthProperties authProperties;
     private final CommonAuthProperties commonAuthProperties;
     private final FilterHelper filterHelper;
 
@@ -57,7 +57,7 @@ class AuthController {
         log.debug("LoginRequest: {}", loginRequest);
         try {
             login(loginRequest, response);
-            response.sendRedirect(authPropertyConfiguration.getSuccessfulLoginRedirection());
+            response.sendRedirect(authProperties.getSuccessfulLoginRedirection());
         } catch (UnauthorizedException ex) {
             log.warn("Login failed: {}", ex.getMessage());
             AuthContext authContext = getAuthContext(request, AccessStatus.LOGIN_FAILED);
@@ -83,7 +83,7 @@ class AuthController {
                 authService.logout(userId.get(), accessTokenId.get());
             }
 
-            Optional.ofNullable(authPropertyConfiguration.getLogoutRedirection()).ifPresent(redirectionPath -> {
+            Optional.ofNullable(authProperties.getLogoutRedirection()).ifPresent(redirectionPath -> {
                 try {
                     response.sendRedirect(redirectionPath);
                 } catch (IOException e) {

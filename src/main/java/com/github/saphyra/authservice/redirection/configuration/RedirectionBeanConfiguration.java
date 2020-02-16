@@ -18,12 +18,12 @@ public class RedirectionBeanConfiguration {
     @Bean
     public FilterRegistrationBean<RedirectionFilter> redirectionFilterFilterRegistrationBean(
         RedirectionFilter redirectionFilter,
-        RedirectionPropertyConfiguration redirectionPropertyConfiguration
+        RedirectionProperties redirectionProperties
     ) {
-        log.info("RedirectionFilter order: {}", redirectionPropertyConfiguration.getFilterOrder());
+        log.info("RedirectionFilter order: {}", redirectionProperties.getFilterOrder());
         FilterRegistrationBean<RedirectionFilter> filterRegistrationBean = new FilterRegistrationBean<>();
         filterRegistrationBean.setFilter(redirectionFilter);
-        filterRegistrationBean.setOrder(redirectionPropertyConfiguration.getFilterOrder());
+        filterRegistrationBean.setOrder(redirectionProperties.getFilterOrder());
         return filterRegistrationBean;
     }
 }

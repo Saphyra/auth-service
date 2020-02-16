@@ -11,7 +11,7 @@ import java.util.List;
 
 @Component
 @Getter
-public class AuthPropertyConfiguration {
+public class AuthProperties {
     public static final String LOGIN_ENDPOINT = "${com.github.saphyra.authservice.auth.login.path:/login}";
     public static final String LOGOUT_ENDPOINT = "${com.github.saphyra.authservice.auth.logout.path:/logout}";
 

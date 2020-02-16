@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Component
 @Getter
-public class RedirectionPropertyConfiguration {
+public class RedirectionProperties {
     @Value("${com.github.saphyra.authservice.redirection.filter.order:0}")
     private Integer filterOrder;
 }

@@ -18,12 +18,12 @@ public class AuthServiceBeanConfiguration {
     @Bean
     public FilterRegistrationBean<AuthFilter> authFilterFilterRegistrationBean(
         AuthFilter authFilter,
-        AuthPropertyConfiguration authPropertyConfiguration
+        AuthProperties authProperties
     ) {
-        log.info("AuthFilter order: {}", authPropertyConfiguration.getFilterOrder());
+        log.info("AuthFilter order: {}", authProperties.getFilterOrder());
         FilterRegistrationBean<AuthFilter> filterRegistrationBean = new FilterRegistrationBean<>();
         filterRegistrationBean.setFilter(authFilter);
-        filterRegistrationBean.setOrder(authPropertyConfiguration.getFilterOrder());
+        filterRegistrationBean.setOrder(authProperties.getFilterOrder());
         return filterRegistrationBean;
     }
 }
