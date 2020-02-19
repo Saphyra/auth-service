@@ -23,7 +23,7 @@ class AccessTokenCache extends AbstractCache<String, AccessToken> {
     }
 
     @Override
-    public Optional<AccessToken> get(String key) {
-        return get(key, () -> authDao.findAccessTokenByTokenId(key));
+    public Optional<AccessToken> load(String key) {
+        return authDao.findAccessTokenByTokenId(key);
     }
 }
