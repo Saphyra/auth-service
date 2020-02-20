@@ -27,7 +27,7 @@ class FilterHelper {
             log.info("Sending error. Cause: Access denied. AccessStatus: {}", authContext.getAccessStatus());
             RestErrorResponse errorResponse = errorResponseResolver.getRestErrorResponse(authContext);
             response.setStatus(errorResponse.getHttpStatus().value());
-            response.setCharacterEncoding("UTF-8");
+            response.setHeader("Content-Type", "application/json;charset=UTF-8");
             PrintWriter writer = response.getWriter();
             writer.write(objectMapperWrapper.writeValueAsString(errorResponse.getResponseBody()));
             writer.flush();

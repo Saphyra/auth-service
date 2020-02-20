@@ -63,7 +63,7 @@ public class FilterHelperTest {
         underTest.handleAccessDenied(request, response, authContext);
         //THEN
         verify(response).setStatus(HttpStatus.BAD_REQUEST.value());
-        verify(response).setCharacterEncoding("UTF-8");
+        verify(response).setHeader("Content-Type", "application/json;charset=UTF-8");
         verify(writer).write(RESPONSE_BODY);
         verify(writer).flush();
         verify(writer).close();
