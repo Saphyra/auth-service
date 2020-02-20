@@ -4,9 +4,7 @@ import com.github.saphyra.authservice.auth.ErrorResponseResolver;
 import com.github.saphyra.authservice.auth.domain.AuthContext;
 import com.github.saphyra.authservice.auth.domain.RestErrorResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
-@Component
 @RequiredArgsConstructor
 public class DefaultErrorResponseResolver implements ErrorResponseResolver {
     private final CommonAuthProperties commonAuthProperties;

@@ -15,7 +15,7 @@ public class AuthBeanConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(ErrorResponseResolver.class)
     public ErrorResponseResolver errorResponseResolver(CommonAuthProperties commonAuthProperties) {
         return new DefaultErrorResponseResolver(commonAuthProperties);
     }
